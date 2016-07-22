@@ -16,6 +16,12 @@ def replication(dna_chain):
         dna_chain -- string, list or tuple with nucleotides (A, T, C, G)
 
     Returns list with nucleotides of second DNA chain
+
+    Raises an exception if fails:
+        - TypeError -- when dna_chain is not string, list or tuple;
+        - ValueError -- when dna_chain is empty or contains forbidden
+                        characters (non-alphabetic)
+        - KeyError - when dna_chain contains not valid nucleotides
     """
     dna_pattern = {
         'a': 't',   # Adenine associates with thymine (A-T)
@@ -24,8 +30,7 @@ def replication(dna_chain):
         'g': 'c'    # Guanine associates with cytosine (G-C)
     }
     # Check if dna_chain is correct type and not empty
-    t = (str, list, tuple)
-    if type(dna_chain) not in t:
+    if type(dna_chain) not in (str, list, tuple):
         raise TypeError
     if len(dna_chain) == 0:
         raise ValueError
@@ -37,7 +42,7 @@ def replication(dna_chain):
         except ValueError:
             # dna_chain might contain non-alphabetic characters
             break
-    # Replicate DNA chain
+    # Try to replicate DNA chain
     dna2_chain = []
     for n in dna1_chain:
         if n in dna_pattern:
