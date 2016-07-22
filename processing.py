@@ -13,7 +13,7 @@ def replication(dna_chain):
     Function of DNA replication (DNA -> DNA)
 
     Arguments:
-        dna_chain -- string or list with nucleotides (A, T, C, G)
+        dna_chain -- string, list or tuple with nucleotides (A, T, C, G)
 
     Returns list with nucleotides of second DNA chain
     """
@@ -23,9 +23,25 @@ def replication(dna_chain):
         'c': 'g',   # Cytosine associates with guanine (C-G)
         'g': 'c'    # Guanine associates with cytosine (G-C)
     }
-    dna1_chain = dna_chain
-    dna1_chain.lower()
+    # Check if dna_chain is correct type and not empty
+    t = (str, list, tuple)
+    if type(dna_chain) not in t:
+        raise TypeError
+    if len(dna_chain) == 0:
+        raise ValueError
+    # Try to convert input dna_chain to list of nucleotides
+    dna1_chain = []
+    for el in list(dna_chain):
+        try:
+            dna1_chain.append(el.lower())
+        except ValueError:
+            # dna_chain might contain non-alphabetic characters
+            break
+    # Replicate DNA chain
     dna2_chain = []
     for n in dna1_chain:
-        dna2_chain.append(dna_pattern[n])
+        if n in dna_pattern:
+            dna2_chain.append(dna_pattern[n])
+        else:
+            raise KeyError
     return dna2_chain
