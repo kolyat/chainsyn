@@ -6,6 +6,8 @@ Module "processing" with processing functions
 
 replication() - function of DNA replication
 transcription() - function of transcription from DNA to mRNA
+translation() - function of translation from mRNA to polypeptide chain
+rev_transcription() - function of reverse transcription from mRNA to DNA
 """
 
 
@@ -60,7 +62,7 @@ def transcription(dna_chain):
     Arguments:
         dna_chain -- string, list or tuple with DNA nucleotides (A, T, C, G)
 
-    Returns list mRNA nucleotides
+    Returns list of mRNA nucleotides
 
     Raises an exception if fails:
         - TypeError -- when dna_chain is not string, list or tuple;
@@ -95,3 +97,180 @@ def transcription(dna_chain):
         else:
             raise KeyError
     return mrna
+
+
+def translation(mrna_chain):
+    """
+    Function of translation (mRNA -> polypeptide chain)
+
+    Arguments:
+        mrna_chain -- string, list or tuple with mRNA nucleotides (A, U, C, G)
+
+    Returns list of polypeptide chain
+
+    Raises an exception if fails:
+        - TypeError -- when mrna_chain is not string, list or tuple;
+        - ValueError -- when mrna_chain is empty, contains forbidden
+                        characters (non-alphabetic) or number of nucleotides
+                        is not divisible by 3
+        - KeyError - when mrna_chain contains not valid nucleotides
+    """
+    peptide_pattern = {
+        # Phenylalanine
+        'UUU': 'Phe',
+        'UUC': 'Phe',
+        # Leucine
+        'UUA': 'Leu',
+        'UUG': 'Leu',
+        'CUU': 'Leu',
+        'CUC': 'Leu',
+        'CUA': 'Leu',
+        'CUG': 'Leu',
+        # Serine
+        'UCU': 'Ser',
+        'UCC': 'Ser',
+        'UCA': 'Ser',
+        'UCG': 'Ser',
+        'AGU': 'Ser',
+        'AGC': 'Ser',
+        # Proline
+        'CCU': 'Pro',
+        'CCC': 'Pro',
+        'CCA': 'Pro',
+        'CCG': 'Pro',
+        # Histidine
+        'CAU': 'His',
+        'CAC': 'His',
+        # Glutamine
+        'CAA': 'Gln',
+        'CAG': 'Gln',
+        # Tyrosine
+        'UAU': 'Tyr',
+        'UAC': 'Tyr',
+        # Stop codons
+        'UAA': 'xxx',
+        'UAG': 'xxx',
+        'UGA': 'xxx',
+        # Cysteine
+        'UGU': 'Cys',
+        'UGC': 'Cys',
+        # Tryptophan
+        'UGG': 'Trp',
+        # Arginine
+        'CGU': 'Arg',
+        'CGC': 'Arg',
+        'CGA': 'Arg',
+        'CGG': 'Arg',
+        'AGA': 'Arg',
+        'AGG': 'Arg',
+        # Isoleucine
+        'AUU': 'Ile',
+        'AUC': 'Ile',
+        'AUA': 'Ile',
+        # Methionine
+        'AUG': 'Met',
+        # Threonine
+        'ACU': 'Thr',
+        'ACC': 'Thr',
+        'ACA': 'Thr',
+        'ACG': 'Thr',
+        # Asparagine
+        'AAU': 'Asn',
+        'AAC': 'Asn',
+        # Lysine
+        'AAA': 'Lys',
+        'AAG': 'Lys',
+        # Valine
+        'GUU': 'Val',
+        'GUC': 'Val',
+        'GUA': 'Val',
+        'GUG': 'Val',
+        # Alanine
+        'GCU': 'Ala',
+        'GCC': 'Ala',
+        'GCA': 'Ala',
+        'GCG': 'Ala',
+        # Aspartate
+        'GAU': 'Asp',
+        'GAC': 'Asp',
+        # Glutamate
+        'GAA': 'Glu',
+        'GAG': 'Glu',
+        # Glycine
+        'GGU': 'Gly',
+        'GGC': 'Gly',
+        'GGA': 'Gly',
+        'GGG': 'Gly',
+    }
+    # Check if mrna_chain is correct type, not empty and divisible by 3
+    if type(mrna_chain) not in (str, list, tuple):
+        raise TypeError
+    if len(mrna_chain) == 0 or len(mrna_chain) % 3 != 0:
+        raise ValueError
+    # Try to convert mrna_chain list of nucleotides to upper case
+    mrna_raw = []
+    for el in list(mrna_chain):
+        try:
+            mrna_raw.append(el.upper())
+        except ValueError:
+            # mrna_chain might contain non-alphabetic characters
+            break
+    # Slice mrna_raw to list of nucleotide triplets (codons)
+    mrna = []
+    while len(mrna_raw) > 0:
+        codon = ""
+        for i in range(3):
+            codon = codon + mrna_raw.pop(0)
+        mrna.append(codon)
+    # Try to translate mRNA to polypeptide chain
+    peptide = []
+    for codon in mrna:
+        if codon in peptide_pattern:
+            peptide.append(peptide_pattern[codon])
+        else:
+            raise KeyError
+    return peptide
+
+
+def rev_transcription(mrna_chain):
+    """
+    Function of reverse transcription (mRNA -> DNA)
+
+    Arguments:
+        mrna_chain -- string, list or tuple with mRNA nucleotides (A, U, C, G)
+
+    Returns list of DNA nucleotides
+
+    Raises an exception if fails:
+        - TypeError -- when mrna_chain is not string, list or tuple;
+        - ValueError -- when mrna_chain is empty or contains forbidden
+                        characters (non-alphabetic)
+        - KeyError - when mrna_chain contains not valid nucleotides
+    """
+    dna_pattern = {
+        'A': 'T',   # Adenine associates with thymine (A-T)
+        'U': 'A',   # Uracil associates with adenine (U-A)
+        'C': 'G',   # Cytosine associates with guanine (C-G)
+        'G': 'C'    # Guanine associates with cytosine (G-C)
+    }
+    # Check if mrna_chain is correct type and not empty
+    if type(mrna_chain) not in (str, list, tuple):
+        raise TypeError
+    if len(mrna_chain) == 0:
+        raise ValueError
+    # Try to convert input mrna_chain to list of nucleotides
+    mrna = []
+    for el in list(mrna_chain):
+        try:
+            mrna.append(el.upper())
+        except ValueError:
+            # mrna_chain might contain non-alphabetic characters
+            break
+    # Try to transcript DNA
+    dna = []
+    for n in mrna:
+        if n in dna_pattern:
+            dna.append(dna_pattern[n])
+        else:
+            raise KeyError
+    return dna
