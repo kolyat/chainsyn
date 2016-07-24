@@ -7,12 +7,14 @@ Module "test_processing" contains unit-tests to processing module
 TestReplication - tests to replication()
 TestTranscription - tests to transcription()
 TestRevTranscription - tests to rev_transcription()
+TestTranslation - tests to translation()
 """
 import unittest
 
 from processing import replication
 from processing import transcription
 from processing import rev_transcription
+from processing import translation
 
 
 class TestReplication(unittest.TestCase):
@@ -292,6 +294,133 @@ class TestRevTranscription(unittest.TestCase):
         """
         self.assertRaises(TypeError, rev_transcription, {'a':'u', 'c':'g'})
 
+
+class TestTranslation(unittest.TestCase):
+    """
+    Class TestTranslation contains tests to translation()
+    """
+    @classmethod
+    def setUpClass(cls):
+        """Initialize correct mRNA with all possible codons"""
+        mrna = ""
+        for n1 in ['U', 'C', 'A', 'G']:
+            for n2 in ['U', 'C', 'A', 'G']:
+                for n3 in ['U', 'C', 'A', 'G']:
+                    mrna = mrna + n1 + n2 + n3
+        cls.correct_mrna = mrna
+
+    correct_peptide = [
+        'Phe', 'Phe', 'Leu', 'Leu', 'Ser', 'Ser', 'Ser', 'Ser',
+        'Tyr', 'Tyr', 'xxx', 'xxx', 'Cys', 'Cys', 'xxx', 'Trp',
+        'Leu', 'Leu', 'Leu', 'Leu', 'Pro', 'Pro', 'Pro', 'Pro',
+        'His', 'His', 'Gln', 'Gln', 'Arg', 'Arg', 'Arg', 'Arg',
+        'Ile', 'Ile', 'Ile', 'Met', 'Thr', 'Thr', 'Thr', 'Thr',
+        'Asn', 'Asn', 'Lys', 'Lys', 'Ser', 'Ser', 'Arg', 'Arg',
+        'Val', 'Val', 'Val', 'Val', 'Ala', 'Ala', 'Ala', 'Ala',
+        'Asp', 'Asp', 'Glu', 'Glu', 'Gly', 'Gly', 'Gly', 'Gly'
+    ]
+
+    def test_correct_lower(self):
+        """
+        Positive test
+        Correct string with nucleotides in lower case
+        """
+        self.assertEqual(translation(self.correct_mrna.lower()),
+                         self.correct_peptide)
+
+    def test_correct_upper(self):
+        """
+        Positive test
+        Correct string with nucleotides in upper case
+        """
+        self.assertEqual(translation(self.correct_mrna), self.correct_peptide)
+
+    def test_correct_list(self):
+        """
+        Positive test
+        Correct list of nucleotides
+        """
+        self.assertEqual(translation(list(self.correct_mrna)),
+                         self.correct_peptide)
+
+    def test_correct_tuple(self):
+        """
+        Positive test
+        Correct tuple of nucleotides
+        """
+        self.assertEqual(translation(tuple(self.correct_mrna)),
+                         self.correct_peptide)
+
+    def test_empty(self):
+        """
+        Negative test
+        Empty string
+        """
+        self.assertRaises(ValueError, translation, '')
+
+    def test_thymine(self):
+        """
+        Negative test
+        Codon with thymine (T)
+        """
+        self.assertRaises(KeyError, translation, 'TCC')
+
+    def test_forbidden_char(self):
+        """
+        Negative test
+        String with forbidden characters
+        """
+        self.assertRaises(KeyError, translation, 'XYZ123#$%')
+
+    def test_forbidden_thymine_first(self):
+        """
+        Negative test
+        String with forbidden characters and thymine in first place
+        """
+        self.assertRaises(KeyError, translation, 'tXYZ123$%')
+
+    def test_forbidden_thymine_mid(self):
+        """
+        Negative test
+        String with forbidden characters and thymine
+        somewhere in the middle
+        """
+        self.assertRaises(KeyError, translation, 'XYZt23#$%')
+
+    def test_integer(self):
+        """
+        Negative test
+        Not a string (integer)
+        """
+        self.assertRaises(TypeError, translation, 3)
+
+    def test_unicode(self):
+        """
+        Negative test
+        Unicode string with Russian 'ААА'
+        """
+        self.assertRaises(KeyError, translation, u'ААА')
+
+    def test_dictionary(self):
+        """
+        Negative test
+        Not supported type - dictionary
+        """
+        self.assertRaises(TypeError, translation, {'a':'u', 'c':'g', 'u':'a'})
+
+    def test_less_than_3(self):
+        """
+        Negative test
+        String length less than 3
+        """
+        self.assertRaises(ValueError, translation, 'UU')
+
+    def test_more_than_3(self):
+        """
+        Negative test
+        String length more than 3, but not divisible by 3
+        """
+        self.assertRaises(ValueError, translation, 'UUUA')
 
 if __name__ == '__main__':
     unittest.main()
