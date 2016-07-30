@@ -33,28 +33,41 @@ while m:
     print(menu_items[1], ' - Imitate full virus cycle')
     print(menu_items[2], ' - Exit')
     print()
-    item = input('Choose menu item: ')
+    item = input('Choose menu item: ',)
     if item not in menu_items:
         input('Please enter correct number of menu item')
     else:
         m = False
 
+# Eucariotic cell polypeptide synthesis
 if item == menu_items[0]:
     print()
     print('Enter source DNA chain with nucleotides A, T, C or G')
-    dna1 = input()
+    dna1 = input('> ')
     dna2 = replication(dna1)
     mrna = transcription(dna2)
     polypeptide = translation(mrna)
-    # output
+    # Print results (this block needs refactoring)
+    for i in range(dna1):
+        print(dna1[i], ' - ', dna2[i], ' - ', mrna[i],)
+        if i % 3 == 0:
+            print(' - ', polypeptide[i / 3],)
+        print('\n')
+# Imitate full virus cycle
 if item == menu_items[1]:
     print()
     print('Enter virus mRNA chain with nucleotides A, U, C or G')
-    mrna1 = input()
+    mrna1 = input('> ')
     dna1 = rev_transcription(mrna1)
     dna2 = replication(dna1)
     mrna2 = transcription(dna2)
     polypeptide = translation(mrna2)
-    # output
-
-exit(0)
+    # Print results (this block needs refactoring)
+    for i in range(mrna1):
+        print(mrna1[i], ' - ', dna1[i], ' - ', dna2[i], ' - ', mrna2[i],)
+        if i % 3 == 0:
+            print(' - ', polypeptide[i / 3],)
+        print('\n')
+# Exit
+if item == menu_items[2]:
+    exit(0)
