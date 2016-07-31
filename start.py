@@ -5,6 +5,7 @@
 Main module of chainsyn
 """
 
+import sys
 from os import system
 
 from processing import replication
@@ -12,15 +13,20 @@ from processing import transcription
 from processing import translation
 from processing import rev_transcription
 
+
+def clrscr():
+    """Clear screen"""
+    if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+        system('clear')
+    if sys.platform.startswith('win'):
+        system('cls')
+
 menu_items = ('1', '2', '0')
 item = ''
 
 m = True
 while m:
-    try:
-        system('clear')
-    except OSError:
-        system('cls')
+    clrscr()
     print()
     print('========')
     print('chainsyn')
@@ -29,9 +35,9 @@ while m:
     print()
     print('Main menu')
     print()
-    print(menu_items[0], ' - Eucariotic cell polypeptide synthesis')
-    print(menu_items[1], ' - Imitate full virus cycle')
-    print(menu_items[2], ' - Exit')
+    print(menu_items[0], '- Eucariotic cell polypeptide synthesis')
+    print(menu_items[1], '- Imitate full virus cycle')
+    print(menu_items[2], '- Exit')
     print()
     item = input('Choose menu item: ',)
     if item not in menu_items:
@@ -48,11 +54,12 @@ if item == menu_items[0]:
     mrna = transcription(dna2)
     polypeptide = translation(mrna)
     # Print results (this block needs refactoring)
-    for i in range(dna1):
-        print(dna1[i], ' - ', dna2[i], ' - ', mrna[i],)
-        if i % 3 == 0:
-            print(' - ', polypeptide[i / 3],)
-        print('\n')
+    for i in range(len(dna1)):
+        print(dna1[i].upper(), dna2[i], mrna[i], sep=' - ', end='')
+        p, b = divmod(i+1, 3)
+        if b == 0:
+            print(' -', polypeptide[p-1], end='')
+        print()
 # Imitate full virus cycle
 if item == menu_items[1]:
     print()
@@ -63,11 +70,12 @@ if item == menu_items[1]:
     mrna2 = transcription(dna2)
     polypeptide = translation(mrna2)
     # Print results (this block needs refactoring)
-    for i in range(mrna1):
-        print(mrna1[i], ' - ', dna1[i], ' - ', dna2[i], ' - ', mrna2[i],)
-        if i % 3 == 0:
-            print(' - ', polypeptide[i / 3],)
-        print('\n')
+    for i in range(len(mrna1)):
+        print(mrna1[i].upper(), dna1[i], dna2[i], mrna2[i], sep=' - ', end='')
+        p, b = divmod(i+1, 3)
+        if b == 0:
+            print(' -', polypeptide[p-1], end='')
+        print()
 # Exit
 if item == menu_items[2]:
     exit(0)
