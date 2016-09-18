@@ -4,6 +4,7 @@
 """
 Module "test_processing" contains unit-tests to processing module
 
+TestSliceChain - test to slice_chain()
 TestReplication - tests to replication()
 TestTranscription - tests to transcription()
 TestRevTranscription - tests to rev_transcription()
@@ -15,7 +16,54 @@ from processing import replication
 from processing import transcription
 from processing import rev_transcription
 from processing import translation
+from processing import slice_chain
 
+class TestSliceChain(unittest.TestCase):
+    """
+    Class TestSliceChain contains tests to slice_chain()
+    """
+    def test_one_codon(self):
+        """
+        Positive test
+        Input chain with three nucleotides - one codon
+        """
+        self.assertEqual(slice_chain('atc'), ['atc'])
+
+    def test_three_codons(self):
+        """
+        Positive test
+        Input chain with nine nucleotides - three codons
+        """
+        self.assertEqual(slice_chain('acgaccagg'), ['acg', 'acc', 'agg'])
+
+    def test_type(self):
+        """
+        Negative test
+        Incorrect type
+        """
+        self.assertRaises(TypeError, slice_chain(123))
+
+    def test_empty_chain(self):
+        """
+        Negative test
+        Input chain is empty
+        """
+        self.assertRaises(ValueError, slice_chain(''))
+
+    def test_two_nucleotides(self):
+        """
+        Negative test
+        Input chain contains two nucleotides (less than in codon)
+        """
+        self.assertRaises(ValueError, slice_chain('at'))
+
+    def test_four_nucleotides(self):
+        """
+        Negative test
+        Input chain contains five nucleotides (more than one but less than two
+        codons)
+        """
+        self.assertRaises(ValueError, slice_chain('atcga'))
 
 class TestReplication(unittest.TestCase):
     """

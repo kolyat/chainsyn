@@ -4,11 +4,45 @@
 """
 Module "processing" with processing functions
 
+slice_chain() - function that slices input chain into codons
 replication() - function of DNA replication
 transcription() - function of transcription from DNA to mRNA
 translation() - function of translation from mRNA to polypeptide chain
 rev_transcription() - function of reverse transcription from mRNA to DNA
 """
+
+
+def slice_chain(chain):
+    """
+    Function that slices input chain into codons
+
+    Arguments:
+        chain - input chain of nucleotides, must be divisible by 3
+
+    Returns list of codons
+
+    Raises an exception if fails:
+        - TypeError: when input chain is not string, list or tuple
+        - ValueError:
+        --- if chain is empty
+        --- when chain's length is not divisible by 3
+    """
+    # Necessary checks
+    if type(chain) not in (str, list, tuple):
+        raise TypeError('Type of input chain must be string, list or tuple')
+    if len(chain) == 0:
+        raise ValueError('Input chain is empty')
+    if len(chain) % 3 != 0:
+        raise ValueError('Length of chain must be divisible by 3')
+
+    str_chain = list(str(chain))
+    output_chain = []
+    while len(str_chain) > 0:
+        codon = []
+        for i in range(3):
+            codon.append(str_chain.pop(0))
+        output_chain.append(codon)
+    return output_chain
 
 
 def replication(dna_chain):
