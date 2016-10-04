@@ -102,7 +102,8 @@ class TestReplication(unittest.TestCase):
         """
         Not supported type - dictionary
         """
-        self.assertRaises(TypeError, replication, ['aaa', {'a':'t', 'c':'g'}])
+        self.assertRaises(TypeError, replication,
+                          ['aaa', {'a': 't', 'c': 'g'}])
 
     def test_empty_codon(self):
         """
@@ -155,7 +156,7 @@ class TestTranscription(unittest.TestCase):
         """
         Not supported type - dictionary
         """
-        self.assertRaises(TypeError, transcription, ['aaa', {'a':'t'}])
+        self.assertRaises(TypeError, transcription, ['aaa', {'a': 't'}])
 
     def test_empty_codon(self):
         """
@@ -208,14 +209,13 @@ class TestRevTranscription(unittest.TestCase):
         """
         Not supported type - dictionary
         """
-        self.assertRaises(TypeError, rev_transcription, ['aaa', {'c':'g'}])
+        self.assertRaises(TypeError, rev_transcription, ['aaa', {'c': 'g'}])
 
     def test_empty_codon(self):
         """
         Chain with empty codon
         """
         self.assertRaises(ValueError, rev_transcription, ['aaa', ''])
-
 
     def test_forbidden_char(self):
         """
@@ -284,7 +284,8 @@ class TestTranslation(unittest.TestCase):
         """
         Not supported type - dictionary
         """
-        self.assertRaises(TypeError, translation, ['AAA', {'c':'g', 'u':'a'}])
+        self.assertRaises(TypeError, translation,
+                          ['AAA', {'c': 'g', 'u': 'a'}])
 
     def test_empty_codon(self):
         """
