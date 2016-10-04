@@ -12,335 +12,216 @@ TestTranslation - tests to translation()
 """
 import unittest
 
+from processing import slice_chain
 from processing import replication
 from processing import transcription
 from processing import rev_transcription
 from processing import translation
-from processing import slice_chain
+
 
 class TestSliceChain(unittest.TestCase):
     """
     Class TestSliceChain contains tests to slice_chain()
     """
+
+    # Positive tests
     def test_one_codon(self):
         """
-        Positive test
         Input chain with three nucleotides - one codon
         """
         self.assertEqual(slice_chain('atc'), ['atc'])
 
     def test_three_codons(self):
         """
-        Positive test
         Input chain with nine nucleotides - three codons
         """
         self.assertEqual(slice_chain('acgaccagg'), ['acg', 'acc', 'agg'])
 
+    # Negative tests
     def test_type(self):
         """
-        Negative test
         Incorrect type
         """
-        self.assertRaises(TypeError, slice_chain(123))
+        self.assertRaises(TypeError, slice_chain, ['a', 'c', 'g'])
 
     def test_empty_chain(self):
         """
-        Negative test
         Input chain is empty
         """
-        self.assertRaises(ValueError, slice_chain(''))
+        self.assertRaises(ValueError, slice_chain, '')
 
     def test_two_nucleotides(self):
         """
-        Negative test
         Input chain contains two nucleotides (less than in codon)
         """
-        self.assertRaises(ValueError, slice_chain('at'))
+        self.assertRaises(ValueError, slice_chain, 'at')
 
     def test_four_nucleotides(self):
         """
-        Negative test
         Input chain contains five nucleotides (more than one but less than two
         codons)
         """
-        self.assertRaises(ValueError, slice_chain('atcga'))
+        self.assertRaises(ValueError, slice_chain, 'atcga')
+
 
 class TestReplication(unittest.TestCase):
     """
     Class TestReplication contains tests to replication()
     """
-    correct_dna = ['T', 'A', 'G', 'C']
+    correct_dna = ['TTT', 'AAA', 'GGG', 'CCC']
 
+    # Positive tests
     def test_correct_lower(self):
         """
-        Positive test
-        Correct string with nucleotides in lower case
+        Correct codons in lower case
         """
-        self.assertEqual(replication('atcg'), self.correct_dna)
+        self.assertEqual(replication(['aaa', 'ttt', 'ccc', 'ggg']),
+                         self.correct_dna)
 
     def test_correct_upper(self):
         """
-        Positive test
-        Correct string with nucleotides in upper case
+        Correct codons in upper case
         """
-        self.assertEqual(replication('ATCG'), self.correct_dna)
+        self.assertEqual(replication(['AAA', 'TTT', 'CCC', 'GGG']),
+                         self.correct_dna)
 
-    def test_correct_list(self):
-        """
-        Positive test
-        Correct list of nucleotides
-        """
-        self.assertEqual(replication(['a', 't', 'c', 'g']), self.correct_dna)
-
-    def test_correct_tuple(self):
-        """
-        Positive test
-        Correct tuple of nucleotides
-        """
-        self.assertEqual(replication(('a', 't', 'c', 'g')), self.correct_dna)
-
-    def test_empty(self):
-        """
-        Negative test
-        Empty string
-        """
-        self.assertRaises(ValueError, replication, '')
-
-    def test_uracil(self):
-        """
-        Negative test
-        String with uracil (U)
-        """
-        self.assertRaises(KeyError, replication, 'atcgu')
-
-    def test_forbidden_char(self):
-        """
-        Negative test
-        String with forbidden characters
-        """
-        self.assertRaises(KeyError, replication, 'XYZat123cg#$%')
-
-    def test_forbidden_uracil_first(self):
-        """
-        Negative test
-        String with forbidden characters and uracil in first place
-        """
-        self.assertRaises(KeyError, replication, 'uXYZat123cg#$%')
-
-    def test_forbidden_uracil_mid(self):
-        """
-        Negative test
-        String with forbidden characters and uracil
-        somewhere in the middle
-        """
-        self.assertRaises(KeyError, replication, 'XuYZat123cg#$%')
-
+    # Negative tests
     def test_integer(self):
         """
-        Negative test
-        Not a string (integer)
+        Not supported type - integer
         """
         self.assertRaises(TypeError, replication, 3)
 
-    def test_unicode(self):
+    def test_empty(self):
         """
-        Negative test
-        Unicode string with Russian 'АТС'
+        Empty list
         """
-        self.assertRaises(KeyError, replication, u'АТС')
+        self.assertRaises(ValueError, replication, [])
 
     def test_dictionary(self):
         """
-        Negative test
         Not supported type - dictionary
         """
-        self.assertRaises(TypeError, replication, {'a':'t', 'c':'g'})
+        self.assertRaises(TypeError, replication, ['aaa', {'a':'t', 'c':'g'}])
+
+    def test_empty_codon(self):
+        """
+        Chain with empty codon
+        """
+        self.assertRaises(ValueError, replication, ['aaa', ''])
+
+    def test_forbidden_char(self):
+        """
+        String with invalid characters
+        """
+        self.assertRaises(KeyError, replication, ['aaa', 'axc'])
 
 
 class TestTranscription(unittest.TestCase):
     """
     Class TestTranscription contains tests to transcription()
     """
-    correct_mrna = ['U', 'A', 'G', 'C']
+    correct_mrna = ['UUU', 'AAA', 'GGG', 'CCC']
 
+    # Positive tests
     def test_correct_lower(self):
         """
-        Positive test
-        Correct string with nucleotides in lower case
+        Correct codons in lower case
         """
-        self.assertEqual(transcription('atcg'), self.correct_mrna)
+        self.assertEqual(transcription(['aaa', 'ttt', 'ccc', 'ggg']),
+                         self.correct_mrna)
 
     def test_correct_upper(self):
         """
-        Positive test
-        Correct string with nucleotides in upper case
+        Correct codons in upper case
         """
-        self.assertEqual(transcription('ATCG'), self.correct_mrna)
+        self.assertEqual(transcription(['AAA', 'TTT', 'CCC', 'GGG']),
+                         self.correct_mrna)
 
-    def test_correct_list(self):
-        """
-        Positive test
-        Correct list of nucleotides
-        """
-        self.assertEqual(transcription(['a', 't', 'c', 'g']), self.correct_mrna)
-
-    def test_correct_tuple(self):
-        """
-        Positive test
-        Correct tuple of nucleotides
-        """
-        self.assertEqual(transcription(('a', 't', 'c', 'g')), self.correct_mrna)
-
-    def test_empty(self):
-        """
-        Negative test
-        Empty string
-        """
-        self.assertRaises(ValueError, transcription, '')
-
-    def test_uracil(self):
-        """
-        Negative test
-        String with uracil (U)
-        """
-        self.assertRaises(KeyError, transcription, 'atcgu')
-
-    def test_forbidden_char(self):
-        """
-        Negative test
-        String with forbidden characters
-        """
-        self.assertRaises(KeyError, transcription, 'XYZat123cg#$%')
-
-    def test_forbidden_uracil_first(self):
-        """
-        Negative test
-        String with forbidden characters and uracil in first place
-        """
-        self.assertRaises(KeyError, transcription, 'uXYZat123cg#$%')
-
-    def test_forbidden_uracil_mid(self):
-        """
-        Negative test
-        String with forbidden characters and uracil
-        somewhere in the middle
-        """
-        self.assertRaises(KeyError, transcription, 'XuYZat123cg#$%')
-
+    # Negative tests
     def test_integer(self):
         """
-        Negative test
-        Not a string (integer)
+        Not a list (integer)
         """
         self.assertRaises(TypeError, transcription, 3)
 
-    def test_unicode(self):
+    def test_empty(self):
         """
-        Negative test
-        Unicode string with Russian 'АТС'
+        Empty list
         """
-        self.assertRaises(KeyError, transcription, u'АТС')
+        self.assertRaises(ValueError, transcription, [])
 
     def test_dictionary(self):
         """
-        Negative test
         Not supported type - dictionary
         """
-        self.assertRaises(TypeError, transcription, {'a':'t', 'c':'g'})
+        self.assertRaises(TypeError, transcription, ['aaa', {'a':'t'}])
+
+    def test_empty_codon(self):
+        """
+        Chain with empty codon
+        """
+        self.assertRaises(ValueError, replication, ['aaa', ''])
+
+    def test_forbidden_char(self):
+        """
+        Codon with invalid characters
+        """
+        self.assertRaises(KeyError, transcription, ['aaa', 'cXg'])
 
 
 class TestRevTranscription(unittest.TestCase):
     """
     Class TestRevTranscription contains tests to rev_transcription()
     """
-    correct_dna = ['T', 'A', 'G', 'C']
+    correct_dna = ['TTT', 'AAA', 'GGG', 'CCC']
 
+    # Positive tests
     def test_correct_lower(self):
         """
-        Positive test
-        Correct string with nucleotides in lower case
+        Correct codons in lower case
         """
-        self.assertEqual(rev_transcription('aucg'), self.correct_dna)
+        self.assertEqual(rev_transcription(['aaa', 'uuu', 'ccc', 'ggg']),
+                         self.correct_dna)
 
     def test_correct_upper(self):
         """
-        Positive test
-        Correct string with nucleotides in upper case
+        Correct codons in upper case
         """
-        self.assertEqual(rev_transcription('AUCG'), self.correct_dna)
-
-    def test_correct_list(self):
-        """
-        Positive test
-        Correct list of nucleotides
-        """
-        self.assertEqual(rev_transcription(['a', 'u', 'c', 'g']),
+        self.assertEqual(rev_transcription(['AAA', 'UUU', 'CCC', 'GGG']),
                          self.correct_dna)
 
-    def test_correct_tuple(self):
-        """
-        Positive test
-        Correct tuple of nucleotides
-        """
-        self.assertEqual(rev_transcription(('a', 'u', 'c', 'g')),
-                         self.correct_dna)
-
-    def test_empty(self):
-        """
-        Negative test
-        Empty string
-        """
-        self.assertRaises(ValueError, rev_transcription, '')
-
-    def test_thymine(self):
-        """
-        Negative test
-        String with thymine (T)
-        """
-        self.assertRaises(KeyError, rev_transcription, 'aucgt')
-
-    def test_forbidden_char(self):
-        """
-        Negative test
-        String with forbidden characters
-        """
-        self.assertRaises(KeyError, rev_transcription, 'XYZat123cg#$%')
-
-    def test_forbidden_thymine_first(self):
-        """
-        Negative test
-        String with forbidden characters and thymine in first place
-        """
-        self.assertRaises(KeyError, rev_transcription, 'tXYZat123cg#$%')
-
-    def test_forbidden_thymine_mid(self):
-        """
-        Negative test
-        String with forbidden characters and thymine
-        somewhere in the middle
-        """
-        self.assertRaises(KeyError, rev_transcription, 'XtYZat123cg#$%')
-
+    # Negative tests
     def test_integer(self):
         """
-        Negative test
-        Not a string (integer)
+        Not a list (integer)
         """
         self.assertRaises(TypeError, rev_transcription, 3)
 
-    def test_unicode(self):
+    def test_empty(self):
         """
-        Negative test
-        Unicode string with Russian 'АС'
+        Empty list
         """
-        self.assertRaises(KeyError, rev_transcription, u'АС')
+        self.assertRaises(ValueError, rev_transcription, [])
 
     def test_dictionary(self):
         """
-        Negative test
         Not supported type - dictionary
         """
-        self.assertRaises(TypeError, rev_transcription, {'a':'u', 'c':'g'})
+        self.assertRaises(TypeError, rev_transcription, ['aaa', {'c':'g'}])
+
+    def test_empty_codon(self):
+        """
+        Chain with empty codon
+        """
+        self.assertRaises(ValueError, rev_transcription, ['aaa', ''])
+
+
+    def test_forbidden_char(self):
+        """
+        Codon with invalid characters
+        """
+        self.assertRaises(KeyError, rev_transcription, ['aaa', 'cXg'])
 
 
 class TestTranslation(unittest.TestCase):
@@ -350,12 +231,16 @@ class TestTranslation(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Initialize correct mRNA with all possible codons"""
-        mrna = ""
+        mrna = []
+        mrna_lower = []
         for n1 in ['U', 'C', 'A', 'G']:
             for n2 in ['U', 'C', 'A', 'G']:
                 for n3 in ['U', 'C', 'A', 'G']:
-                    mrna = mrna + n1 + n2 + n3
+                    mrna.append(str(n1 + n2 + n3))
+                    mrna_lower.append(str(n1.lower() + n2.lower() +
+                                          n3.lower()))
         cls.correct_mrna = mrna
+        cls.correct_mrna_lower = mrna_lower
 
     correct_peptide = [
         'Phe', 'Phe', 'Leu', 'Leu', 'Ser', 'Ser', 'Ser', 'Ser',
@@ -368,107 +253,50 @@ class TestTranslation(unittest.TestCase):
         'Asp', 'Asp', 'Glu', 'Glu', 'Gly', 'Gly', 'Gly', 'Gly'
     ]
 
+    # Positive tests
     def test_correct_lower(self):
         """
-        Positive test
         Correct string with nucleotides in lower case
         """
-        self.assertEqual(translation(self.correct_mrna.lower()),
+        self.assertEqual(translation(self.correct_mrna_lower),
                          self.correct_peptide)
 
     def test_correct_upper(self):
         """
-        Positive test
         Correct string with nucleotides in upper case
         """
         self.assertEqual(translation(self.correct_mrna), self.correct_peptide)
 
-    def test_correct_list(self):
-        """
-        Positive test
-        Correct list of nucleotides
-        """
-        self.assertEqual(translation(list(self.correct_mrna)),
-                         self.correct_peptide)
-
-    def test_correct_tuple(self):
-        """
-        Positive test
-        Correct tuple of nucleotides
-        """
-        self.assertEqual(translation(tuple(self.correct_mrna)),
-                         self.correct_peptide)
-
-    def test_empty(self):
-        """
-        Negative test
-        Empty string
-        """
-        self.assertRaises(ValueError, translation, '')
-
-    def test_thymine(self):
-        """
-        Negative test
-        Codon with thymine (T)
-        """
-        self.assertRaises(KeyError, translation, 'TCC')
-
-    def test_forbidden_char(self):
-        """
-        Negative test
-        String with forbidden characters
-        """
-        self.assertRaises(KeyError, translation, 'XYZ123#$%')
-
-    def test_forbidden_thymine_first(self):
-        """
-        Negative test
-        String with forbidden characters and thymine in first place
-        """
-        self.assertRaises(KeyError, translation, 'tXYZ123$%')
-
-    def test_forbidden_thymine_mid(self):
-        """
-        Negative test
-        String with forbidden characters and thymine
-        somewhere in the middle
-        """
-        self.assertRaises(KeyError, translation, 'XYZt23#$%')
-
+    # Negative tests
     def test_integer(self):
         """
-        Negative test
-        Not a string (integer)
+        Not a list (integer)
         """
         self.assertRaises(TypeError, translation, 3)
 
-    def test_unicode(self):
+    def test_empty(self):
         """
-        Negative test
-        Unicode string with Russian 'ААА'
+        Empty list
         """
-        self.assertRaises(KeyError, translation, u'ААА')
+        self.assertRaises(ValueError, translation, [])
 
     def test_dictionary(self):
         """
-        Negative test
         Not supported type - dictionary
         """
-        self.assertRaises(TypeError, translation, {'a':'u', 'c':'g', 'u':'a'})
+        self.assertRaises(TypeError, translation, ['AAA', {'c':'g', 'u':'a'}])
 
-    def test_less_than_3(self):
+    def test_empty_codon(self):
         """
-        Negative test
-        String length less than 3
+        Chain with empty codon
         """
-        self.assertRaises(ValueError, translation, 'UU')
+        self.assertRaises(ValueError, translation, ['aaa', ''])
 
-    def test_more_than_3(self):
+    def test_forbidden_char(self):
         """
-        Negative test
-        String length more than 3, but not divisible by 3
+        Codon with invalid nucleotides
         """
-        self.assertRaises(ValueError, translation, 'UUUA')
+        self.assertRaises(KeyError, translation, ['aaa', 'axc'])
 
 if __name__ == '__main__':
     unittest.main()

@@ -19,28 +19,26 @@ def slice_chain(chain):
     Arguments:
         chain - input chain of nucleotides, must be divisible by 3
 
-    Returns list of codons
+    Returns list of codons (strings)
 
     Raises an exception if fails:
-        - TypeError: when input chain is not string, list or tuple
-        - ValueError:
-        --- if chain is empty
-        --- when chain's length is not divisible by 3
+        - TypeError: when input chain is not string
+        - ValueError: if chain is empty or chain's length is not divisible by 3
     """
     # Necessary checks
-    if type(chain) not in (str, list, tuple):
+    if type(chain) != str:
         raise TypeError('Type of input chain must be string, list or tuple')
-    if len(chain) == 0:
+    if not chain:
         raise ValueError('Input chain is empty')
     if len(chain) % 3 != 0:
         raise ValueError('Length of chain must be divisible by 3')
 
-    str_chain = list(str(chain))
+    raw_chain = list(chain)
     output_chain = []
-    while len(str_chain) > 0:
-        codon = []
+    while len(raw_chain) > 0:
+        codon = ''
         for i in range(3):
-            codon.append(str_chain.pop(0))
+            codon += raw_chain.pop(0)
         output_chain.append(codon)
     return output_chain
 
@@ -50,15 +48,15 @@ def replication(dna_chain):
     Function of DNA replication (DNA -> DNA)
 
     Arguments:
-        dna_chain -- string, list or tuple with DNA nucleotides (A, T, C, G)
+        dna_chain -- list of codons (strings) with DNA nucleotides (A, T, C, G)
 
-    Returns list of second DNA chain nucleotides
+    Returns list with codons (strings) of second DNA chain
 
     Raises an exception if fails:
-        - TypeError -- when dna_chain is not string, list or tuple;
-        - ValueError -- when dna_chain is empty or contains forbidden
-                        characters (non-alphabetic)
-        - KeyError - when dna_chain contains not valid nucleotides
+        - TypeError: when dna_chain is not list, codon is not a string;
+        - ValueError: when dna_chain is empty, number of nucleotides is not
+                        equal to 3;
+        - KeyError: when codon contains not valid nucleotides
     """
     dna_pattern = {
         'A': 'T',   # Adenine associates with thymine (A-T)
@@ -66,26 +64,35 @@ def replication(dna_chain):
         'C': 'G',   # Cytosine associates with guanine (C-G)
         'G': 'C'    # Guanine associates with cytosine (G-C)
     }
+
     # Check if dna_chain is correct type and not empty
-    if type(dna_chain) not in (str, list, tuple):
-        raise TypeError
+    if type(dna_chain) != list:
+        raise TypeError('Input DNA chain must be list of codons')
     if len(dna_chain) == 0:
-        raise ValueError
-    # Try to convert input dna_chain to list of nucleotides
-    dna1_chain = []
-    for el in list(dna_chain):
-        try:
-            dna1_chain.append(el.upper())
-        except ValueError:
-            # dna_chain might contain non-alphabetic characters
-            break
-    # Try to replicate DNA chain
+        raise ValueError('Input DNA chain is empty')
+    # Check every codon
+    for c in range(len(dna_chain)):
+        if type(dna_chain[c]) != str:
+            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
+                            'string, not ' + type(dna_chain[c]))
+        if len(dna_chain[c]) != 3:
+            raise ValueError('Error in codon ' + str(c+1) + ': number of '
+                             'nucleotides equal to ' + str(len(dna_chain[c])) +
+                             ', must be 3')
+        for n in range(len(dna_chain[c])):
+            if dna_chain[c][n].upper() not in dna_pattern:
+                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
+                               str(n+1) + ': unexpected nucleotide - ' +
+                               dna_chain[c][n])
+
+    # Replicate DNA chain
     dna2_chain = []
-    for n in dna1_chain:
-        if n in dna_pattern:
-            dna2_chain.append(dna_pattern[n])
-        else:
-            raise KeyError
+    for c in dna_chain:
+        codon = ''
+        for n in c:
+            codon += dna_pattern[n.upper()]
+        dna2_chain.append(codon)
+
     return dna2_chain
 
 
@@ -94,15 +101,15 @@ def transcription(dna_chain):
     Function of transcription (DNA -> mRNA)
 
     Arguments:
-        dna_chain -- string, list or tuple with DNA nucleotides (A, T, C, G)
+        dna_chain -- list of codons (strings) with DNA nucleotides (A, T, C, G)
 
-    Returns list of mRNA nucleotides
+    Returns list of codons (strings) with mRNA nucleotides
 
     Raises an exception if fails:
-        - TypeError -- when dna_chain is not string, list or tuple;
-        - ValueError -- when dna_chain is empty or contains forbidden
-                        characters (non-alphabetic)
-        - KeyError - when dna_chain contains not valid nucleotides
+        - TypeError: when dna_chain is not list, codon is not a string;
+        - ValueError: when dna_chain is empty, number of nucleotides is not
+                        equal to 3;
+        - KeyError: when codon contains not valid nucleotides
     """
     mrna_pattern = {
         'A': 'U',   # Adenine associates with uracil (A-U)
@@ -110,27 +117,88 @@ def transcription(dna_chain):
         'C': 'G',   # Cytosine associates with guanine (C-G)
         'G': 'C'    # Guanine associates with cytosine (G-C)
     }
+
     # Check if dna_chain is correct type and not empty
-    if type(dna_chain) not in (str, list, tuple):
-        raise TypeError
+    if type(dna_chain) != list:
+        raise TypeError('Input DNA chain must be list of codons')
     if len(dna_chain) == 0:
-        raise ValueError
-    # Try to convert input dna_chain to list of nucleotides
-    dna = []
-    for el in list(dna_chain):
-        try:
-            dna.append(el.upper())
-        except ValueError:
-            # dna_chain might contain non-alphabetic characters
-            break
-    # Try to transcript mRNA
+        raise ValueError('Input DNA chain is empty')
+    # Check every codon
+    for c in range(len(dna_chain)):
+        if type(dna_chain[c]) != str:
+            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
+                            'string, not ' + type(dna_chain[c]))
+        if len(dna_chain[c]) != 3:
+            raise ValueError('Error in codon ' + str(c+1) + ': number of '
+                             'nucleotides equal to ' + str(len(dna_chain[c])) +
+                             ', must be 3')
+        for n in range(len(dna_chain[c])):
+            if dna_chain[c][n].upper() not in mrna_pattern:
+                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
+                               str(n+1) + ': unexpected nucleotide - ' +
+                               dna_chain[c][n])
+
+    # Transcript DNA chain into mRNA
     mrna = []
-    for n in dna:
-        if n in mrna_pattern:
-            mrna.append(mrna_pattern[n])
-        else:
-            raise KeyError
+    for c in dna_chain:
+        codon = ''
+        for n in c:
+            codon += mrna_pattern[n.upper()]
+        mrna.append(codon)
+
     return mrna
+
+
+def rev_transcription(mrna_chain):
+    """
+    Function of reverse transcription (mRNA -> DNA)
+
+    Arguments:
+        mrna_chain -- list of codons with mRNA nucleotides (A, U, C, G)
+
+    Returns list of codons with DNA nucleotides
+
+    Raises an exception if fails:
+        - TypeError: when mrna_chain is not list, codon is not a string;
+        - ValueError: when mrna_chain is empty, number of nucleotides is not
+                        equal to 3;
+        - KeyError: when codon contains not valid nucleotides
+    """
+    dna_pattern = {
+        'A': 'T',   # Adenine associates with thymine (A-T)
+        'U': 'A',   # Uracil associates with adenine (U-A)
+        'C': 'G',   # Cytosine associates with guanine (C-G)
+        'G': 'C'    # Guanine associates with cytosine (G-C)
+    }
+
+    # Check if mrna_chain is correct type and not empty
+    if type(mrna_chain) != list:
+        raise TypeError('Input mRNA chain must be list of codons')
+    if len(mrna_chain) == 0:
+        raise ValueError('Input mRNA chain is empty')
+    # Check every codon
+    for c in range(len(mrna_chain)):
+        if type(mrna_chain[c]) != str:
+            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
+                            'string, not ' + type(mrna_chain[c]))
+        if len(mrna_chain[c]) != 3:
+            raise ValueError('Error in codon ' + str(c+1) + ': number of '
+                             'nucleotides equal to ' + str(len(mrna_chain[c]))
+                             + ', must be 3')
+        for n in range(len(mrna_chain[c])):
+            if mrna_chain[c][n].upper() not in dna_pattern:
+                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
+                               str(n+1) + ': unexpected nucleotide - ' +
+                               mrna_chain[c][n])
+
+    # Transcript mRNA chain into DNA
+    dna = []
+    for c in mrna_chain:
+        codon = ''
+        for n in c:
+            codon += dna_pattern[n.upper()]
+        dna.append(codon)
+    return dna
 
 
 def translation(mrna_chain):
@@ -138,17 +206,17 @@ def translation(mrna_chain):
     Function of translation (mRNA -> polypeptide chain)
 
     Arguments:
-        mrna_chain -- string, list or tuple with mRNA nucleotides (A, U, C, G)
+        mrna_chain -- list of codons with mRNA nucleotides (A, U, C, G)
 
     Returns list of polypeptide chain
 
     Raises an exception if fails:
-        - TypeError -- when mrna_chain is not string, list or tuple;
-        - ValueError -- when mrna_chain is empty, contains forbidden
-                        characters (non-alphabetic) or number of nucleotides
-                        is not divisible by 3
-        - KeyError - when mrna_chain contains not valid nucleotides
+        - TypeError: when mrna_chain is not list, codon is not string;
+        - ValueError: when mrna_chain is empty, number of nucleotides is not
+                        equal to 3
+        - KeyError: when mrna_chain contains not valid nucleotides
     """
+    mrna_nucleotides = ['A', 'U', 'C', 'G']
     peptide_pattern = {
         # Phenylalanine
         'UUU': 'Phe',
@@ -236,75 +304,29 @@ def translation(mrna_chain):
         'GGA': 'Gly',
         'GGG': 'Gly',
     }
-    # Check if mrna_chain is correct type, not empty and divisible by 3
-    if type(mrna_chain) not in (str, list, tuple):
-        raise TypeError
-    if len(mrna_chain) == 0 or len(mrna_chain) % 3 != 0:
-        raise ValueError
-    # Try to convert mrna_chain list of nucleotides to upper case
-    mrna_raw = []
-    for el in list(mrna_chain):
-        try:
-            mrna_raw.append(el.upper())
-        except ValueError:
-            # mrna_chain might contain non-alphabetic characters
-            break
-    # Slice mrna_raw to list of nucleotide triplets (codons)
-    mrna = []
-    while len(mrna_raw) > 0:
-        codon = ""
-        for i in range(3):
-            codon = codon + mrna_raw.pop(0)
-        mrna.append(codon)
-    # Try to translate mRNA to polypeptide chain
-    peptide = []
-    for codon in mrna:
-        if codon in peptide_pattern:
-            peptide.append(peptide_pattern[codon])
-        else:
-            raise KeyError
-    return peptide
 
-
-def rev_transcription(mrna_chain):
-    """
-    Function of reverse transcription (mRNA -> DNA)
-
-    Arguments:
-        mrna_chain -- string, list or tuple with mRNA nucleotides (A, U, C, G)
-
-    Returns list of DNA nucleotides
-
-    Raises an exception if fails:
-        - TypeError -- when mrna_chain is not string, list or tuple;
-        - ValueError -- when mrna_chain is empty or contains forbidden
-                        characters (non-alphabetic)
-        - KeyError - when mrna_chain contains not valid nucleotides
-    """
-    dna_pattern = {
-        'A': 'T',   # Adenine associates with thymine (A-T)
-        'U': 'A',   # Uracil associates with adenine (U-A)
-        'C': 'G',   # Cytosine associates with guanine (C-G)
-        'G': 'C'    # Guanine associates with cytosine (G-C)
-    }
     # Check if mrna_chain is correct type and not empty
-    if type(mrna_chain) not in (str, list, tuple):
-        raise TypeError
+    if type(mrna_chain) != list:
+        raise TypeError('Input mRNA chain must be list of codons')
     if len(mrna_chain) == 0:
-        raise ValueError
-    # Try to convert input mrna_chain to list of nucleotides
-    mrna = []
-    for el in list(mrna_chain):
-        try:
-            mrna.append(el.upper())
-        except ValueError:
-            # mrna_chain might contain non-alphabetic characters
-            break
-    # Try to transcript DNA
-    dna = []
-    for n in mrna:
-        if n in dna_pattern:
-            dna.append(dna_pattern[n])
-        else:
-            raise KeyError
-    return dna
+        raise ValueError('Input mRNA chain is empty')
+    # Check every codon
+    for c in range(len(mrna_chain)):
+        if type(mrna_chain[c]) != str:
+            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
+                            'string, not ' + type(mrna_chain[c]))
+        if len(mrna_chain[c]) != 3:
+            raise ValueError('Error in codon ' + str(c+1) + ': number of '
+                             'nucleotides equal to ' + str(len(mrna_chain[c]))
+                             + ', must be 3')
+        for n in range(len(mrna_chain[c])):
+            if mrna_chain[c][n].upper() not in mrna_nucleotides:
+                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
+                               str(n+1) + ': unexpected nucleotide - ' +
+                               mrna_chain[c][n])
+
+    # Translate mRNA to polypeptide chain
+    peptide = []
+    for codon in mrna_chain:
+        peptide.append(peptide_pattern[codon.upper()])
+    return peptide
