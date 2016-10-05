@@ -8,6 +8,7 @@ Main module of chainsyn
 import sys
 from os import system
 
+from processing import slice_chain
 from processing import replication
 from processing import transcription
 from processing import translation
@@ -24,8 +25,7 @@ def clrscr():
 menu_items = ('1', '2', '0')
 item = ''
 
-m = True
-while m:
+while item not in menu_items:
     clrscr()
     print()
     print('========')
@@ -36,46 +36,52 @@ while m:
     print('Main menu')
     print()
     print(menu_items[0], '- Eucariotic cell polypeptide synthesis')
-    print(menu_items[1], '- Imitate full virus cycle')
+    print(menu_items[1], '- Imitate full viral cycle')
     print(menu_items[2], '- Exit')
     print()
     item = input('Choose menu item: ',)
     if item not in menu_items:
-        input('Please enter correct number of menu item')
-    else:
-        m = False
+        input('Please, enter correct number of menu item')
 
 # Eucariotic cell polypeptide synthesis
 if item == menu_items[0]:
     print()
     print('Enter source DNA chain with nucleotides A, T, C or G')
-    dna1 = input('> ')
+    raw_dna = input('> ')
+    # Process input chain
+    dna1 = slice_chain(raw_dna)
     dna2 = replication(dna1)
     mrna = transcription(dna2)
     polypeptide = translation(mrna)
-    # Print results (this block needs refactoring)
+    # Print results
     for i in range(len(dna1)):
-        print(dna1[i].upper(), dna2[i], mrna[i], sep=' - ', end='')
-        p, b = divmod(i+1, 3)
-        if b == 0:
-            print(' -', polypeptide[p-1], end='')
-        print()
+        seq = (dna1[i].upper(), dna2[i], mrna[i], polypeptide[i])
+        print('-'.join(seq))
+    print()
+    print('Processed ' + str(len(dna1)) + ' codons')
+    print('Press <Enter> to exit',)
+    input()
+
 # Imitate full virus cycle
 if item == menu_items[1]:
     print()
-    print('Enter virus mRNA chain with nucleotides A, U, C or G')
-    mrna1 = input('> ')
+    print('Enter viral mRNA chain with nucleotides A, U, C or G')
+    raw_mrna = input('> ')
+    # Process input mRNA
+    mrna1 = slice_chain(raw_mrna)
     dna1 = rev_transcription(mrna1)
     dna2 = replication(dna1)
     mrna2 = transcription(dna2)
     polypeptide = translation(mrna2)
-    # Print results (this block needs refactoring)
+    # Print results
     for i in range(len(mrna1)):
-        print(mrna1[i].upper(), dna1[i], dna2[i], mrna2[i], sep=' - ', end='')
-        p, b = divmod(i+1, 3)
-        if b == 0:
-            print(' -', polypeptide[p-1], end='')
-        print()
+        seq = (mrna1[i].upper(), dna1[i], dna2[i], mrna2[i], polypeptide[i])
+        print('-'.join(seq))
+    print()
+    print('Processed ' + str(len(mrna1)) + ' codons')
+    print('Press <Enter> to exit',)
+    input()
+
 # Exit
 if item == menu_items[2]:
     exit(0)
