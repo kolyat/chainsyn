@@ -16,14 +16,16 @@ def slice_chain(chain):
     """
     Function that slices input chain into codons
 
-    Arguments:
-        chain - input chain of nucleotides, must be divisible by 3
+    :parameter chain: input chain of nucleotides, must be divisible by 3
+    :type chain: str
 
-    Returns list of codons (strings)
 
-    Raises an exception if fails:
-        - TypeError: when input chain is not string
-        - ValueError: if chain is empty or chain's length is not divisible by 3
+    :returns list of codons (strings)
+
+
+    :raises TypeError: when input chain is not string
+    :raises ValueError: if chain is empty or chain's length is not divisible
+                        by 3
     """
     # Necessary checks
     if type(chain) != str:
@@ -47,16 +49,17 @@ def replication(dna_chain):
     """
     Function of DNA replication (DNA -> DNA)
 
-    Arguments:
-        dna_chain -- list of codons (strings) with DNA nucleotides (A, T, C, G)
+    :parameter dna_chain: codons (strings) with DNA nucleotides (A, T, C, G)
+    :type dna_chain: list
 
-    Returns list with codons (strings) of second DNA chain
 
-    Raises an exception if fails:
-        - TypeError: when dna_chain is not list, codon is not a string;
-        - ValueError: when dna_chain is empty, number of nucleotides is not
+    :returns list with codons (strings) of second DNA chain
+
+
+    :raises TypeError: when dna_chain is not list, codon is not a string;
+    :raises ValueError: when dna_chain is empty, number of nucleotides is not
                         equal to 3;
-        - KeyError: when codon contains not valid nucleotides
+    :raises KeyError: when codon contains not valid nucleotides
     """
     dna_pattern = {
         'A': 'T',   # Adenine associates with thymine (A-T)
@@ -100,16 +103,17 @@ def transcription(dna_chain):
     """
     Function of transcription (DNA -> mRNA)
 
-    Arguments:
-        dna_chain -- list of codons (strings) with DNA nucleotides (A, T, C, G)
+    :parameter dna_chain: codons (strings) with DNA nucleotides (A, T, C, G)
+    :type dna_chain: list
 
-    Returns list of codons (strings) with mRNA nucleotides
 
-    Raises an exception if fails:
-        - TypeError: when dna_chain is not list, codon is not a string;
-        - ValueError: when dna_chain is empty, number of nucleotides is not
+    :returns list of codons (strings) with mRNA nucleotides
+
+
+    :raises TypeError: when dna_chain is not list, codon is not a string;
+    :raises ValueError: when dna_chain is empty, number of nucleotides is not
                         equal to 3;
-        - KeyError: when codon contains not valid nucleotides
+    :raises KeyError: when codon contains not valid nucleotides
     """
     mrna_pattern = {
         'A': 'U',   # Adenine associates with uracil (A-U)
@@ -153,16 +157,17 @@ def rev_transcription(mrna_chain):
     """
     Function of reverse transcription (mRNA -> DNA)
 
-    Arguments:
-        mrna_chain -- list of codons with mRNA nucleotides (A, U, C, G)
+    :parameter mrna_chain: codons with mRNA nucleotides (A, U, C, G)
+    :type mrna_chain: list
 
-    Returns list of codons with DNA nucleotides
 
-    Raises an exception if fails:
-        - TypeError: when mrna_chain is not list, codon is not a string;
-        - ValueError: when mrna_chain is empty, number of nucleotides is not
+    :returns list of codons with DNA nucleotides
+
+
+    :raises TypeError: when mrna_chain is not list, codon is not a string;
+    :raises ValueError: when mrna_chain is empty, number of nucleotides is not
                         equal to 3;
-        - KeyError: when codon contains not valid nucleotides
+    :raises KeyError: when codon contains not valid nucleotides
     """
     dna_pattern = {
         'A': 'T',   # Adenine associates with thymine (A-T)
@@ -205,16 +210,17 @@ def translation(mrna_chain):
     """
     Function of translation (mRNA -> polypeptide chain)
 
-    Arguments:
-        mrna_chain -- list of codons with mRNA nucleotides (A, U, C, G)
+    :parameter mrna_chain: codons with mRNA nucleotides (A, U, C, G)
+    :type mrna_chain: list
 
-    Returns list of polypeptide chain
 
-    Raises an exception if fails:
-        - TypeError: when mrna_chain is not list, codon is not string;
-        - ValueError: when mrna_chain is empty, number of nucleotides is not
+    :returns list of polypeptide chain
+
+
+    :raises TypeError: when mrna_chain is not list, codon is not string;
+    :raises ValueError: when mrna_chain is empty, number of nucleotides is not
                         equal to 3
-        - KeyError: when mrna_chain contains not valid nucleotides
+    :raises KeyError: when mrna_chain contains not valid nucleotides
     """
     mrna_nucleotides = ['A', 'U', 'C', 'G']
     peptide_pattern = {

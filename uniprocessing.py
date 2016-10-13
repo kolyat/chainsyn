@@ -14,23 +14,24 @@ pattern_dna_rev - to transcript DNA from mRNA (reverted transcription)
 
 
 pattern_dna = {
-    'A': 'T',  # Adenine associates with thymine (A-T)
-    'T': 'A',  # Thymine associates with adenine (T-A)
-    'C': 'G',  # Cytosine associates with guanine (C-G)
-    'G': 'C'   # Guanine associates with cytosine (G-C)
+    'A': 'T',  # Adenine - Thymine
+    'T': 'A',  # Thymine - Adenine
+    'C': 'G',  # Cytosine - Guanine
+    'G': 'C'   # Guanine - Cytosine
 }
 pattern_mrna = {
-    'A': 'U',  # Adenine associates with uracil (A-U)
-    'T': 'A',  # Thymine associates with adenine (T-A)
-    'C': 'G',  # Cytosine associates with guanine (C-G)
-    'G': 'C'   # Guanine associates with cytosine (G-C)
+    'A': 'U',  # Adenine - Uracil
+    'T': 'A',  # Thymine - Adenine
+    'C': 'G',  # Cytosine - Guanine
+    'G': 'C'   # Guanine - Cytosine
 }
 pattern_dna_rev = {
-    'A': 'T',  # Adenine associates with thymine (A-T)
-    'U': 'A',  # Uracil associates with adenine (U-A)
-    'C': 'G',  # Cytosine associates with guanine (C-G)
-    'G': 'C'   # Guanine associates with cytosine (G-C)
+    'A': 'T',  # Adenine - Thymine
+    'U': 'A',  # Uracil - Adenine
+    'C': 'G',  # Cytosine - Guanine
+    'G': 'C'   # Guanine - Cytosine
 }
+
 valid_patterns = (pattern_dna, pattern_mrna, pattern_dna_rev)
 
 
@@ -38,20 +39,23 @@ def process(chain, pattern):
     """
     Function of universal processing
 
-    Arguments:
-        chain -- list of codons (strings) with nucleotides
-        pattern -- any pattern (dictionary) which is used to build another
-                   chain
+    :parameter chain: codons (strings) with nucleotides
+    :type chain: list
 
-    Returns list with codons (strings) of second chain
+    :parameter pattern: any pattern (dictionary) which is used to build another
+                        chain
+    :type pattern: dictionary
 
-    Raises an exception if fails:
-        - TypeError: when chain is not list, codon is not a string, pattern is
-                     not a dictionary;
-        - ValueError: when chain or pattern is empty, number of nucleotides is
-                      not equal to 3;
-        - KeyError: when codon contains not correct nucleotides or pattern is
-                    not valid;
+
+    :returns list with codons (strings) of second chain
+
+
+    :raises TypeError: when chain is not list, codon is not a string, pattern
+                       is not a dictionary;
+    :raises ValueError: when chain or pattern is empty, number of nucleotides
+                        is not equal to 3;
+    :raises KeyError: when codon contains not correct nucleotides or pattern is
+                      not valid;
     """
     # Check if input chain is correct type and not empty
     if type(chain) != list:

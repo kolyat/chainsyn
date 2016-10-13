@@ -299,5 +299,6 @@ class TestTranslation(unittest.TestCase):
         """
         self.assertRaises(KeyError, translation, ['aaa', 'axc'])
 
+
 if __name__ == '__main__':
     unittest.main()
