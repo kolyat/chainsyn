@@ -1,6 +1,7 @@
 # Copyright (c) 2016 Kirill 'Kolyat' Kiselnikov
 # This file is the part of chainsyn, released under modified MIT license
 # See the file LICENSE.txt included in this distribution
+
 """
 Module "uniprocessing" with patterns and universal processing function
 
@@ -77,7 +78,7 @@ def process(chain, pattern):
                              'nucleotides equal to ' + str(len(chain[c])) +
                              ', must be 3')
         for n in range(len(chain[c])):
-            if chain[c][n].upper() not in valid_patterns:
+            if chain[c][n].upper() not in pattern:
                 raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
                                str(n+1) + ': unexpected nucleotide - ' +
                                chain[c][n])

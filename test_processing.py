@@ -1,6 +1,7 @@
 # Copyright (c) 2016 Kirill 'Kolyat' Kiselnikov
 # This file is the part of chainsyn, released under modified MIT license.
 # See the file LICENSE.txt included in this distribution
+
 """
 Module "test_processing" contains unit-tests to processing module
 

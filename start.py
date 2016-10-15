@@ -1,8 +1,11 @@
 # Copyright (c) 2016 Kirill 'Kolyat' Kiselnikov
 # This file is the part of chainsyn, released under modified MIT license
 # See the file LICENSE.txt included in this distribution
+
 """
 Main module of chainsyn
+
+Note: universal processing function is not used here
 """
 
 import sys
