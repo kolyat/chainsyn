@@ -19,9 +19,7 @@ def slice_chain(chain):
     :parameter chain: input chain of nucleotides, must be divisible by 3
     :type chain: str
 
-
     :returns list of codons (strings)
-
 
     :raises TypeError: when input chain is not string
     :raises ValueError: if chain is empty or chain's length is not divisible
@@ -52,9 +50,7 @@ def replication(dna_chain):
     :parameter dna_chain: codons (strings) with DNA nucleotides (A, T, C, G)
     :type dna_chain: list
 
-
     :returns list with codons (strings) of second DNA chain
-
 
     :raises TypeError: when dna_chain is not list, codon is not a string;
     :raises ValueError: when dna_chain is empty, number of nucleotides is not
@@ -106,9 +102,7 @@ def transcription(dna_chain):
     :parameter dna_chain: codons (strings) with DNA nucleotides (A, T, C, G)
     :type dna_chain: list
 
-
     :returns list of codons (strings) with mRNA nucleotides
-
 
     :raises TypeError: when dna_chain is not list, codon is not a string;
     :raises ValueError: when dna_chain is empty, number of nucleotides is not
@@ -160,9 +154,7 @@ def rev_transcription(mrna_chain):
     :parameter mrna_chain: codons with mRNA nucleotides (A, U, C, G)
     :type mrna_chain: list
 
-
     :returns list of codons with DNA nucleotides
-
 
     :raises TypeError: when mrna_chain is not list, codon is not a string;
     :raises ValueError: when mrna_chain is empty, number of nucleotides is not
@@ -213,9 +205,7 @@ def translation(mrna_chain):
     :parameter mrna_chain: codons with mRNA nucleotides (A, U, C, G)
     :type mrna_chain: list
 
-
     :returns list of polypeptide chain
-
 
     :raises TypeError: when mrna_chain is not list, codon is not string;
     :raises ValueError: when mrna_chain is empty, number of nucleotides is not

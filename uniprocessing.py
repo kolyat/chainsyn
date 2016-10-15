@@ -46,9 +46,7 @@ def process(chain, pattern):
                         chain
     :type pattern: dictionary
 
-
     :returns list with codons (strings) of second chain
-
 
     :raises TypeError: when chain is not list, codon is not a string, pattern
                        is not a dictionary;
