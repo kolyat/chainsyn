@@ -73,17 +73,18 @@ def replication(dna_chain):
     # Check every codon
     for c in range(len(dna_chain)):
         if type(dna_chain[c]) != str:
-            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
-                            'string, not ' + type(dna_chain[c]))
+            raise TypeError('Error in codon {}: codon must be string, '
+                            'not {}'.format(c+1, type(dna_chain[c])))
         if len(dna_chain[c]) != 3:
-            raise ValueError('Error in codon ' + str(c+1) + ': number of '
-                             'nucleotides equal to ' + str(len(dna_chain[c])) +
-                             ', must be 3')
+            raise ValueError('Error in codon {}: number of nucleotides equal '
+                             'to {}, must be 3'.format(c+1, len(dna_chain[c])))
         for n in range(len(dna_chain[c])):
             if dna_chain[c][n].upper() not in dna_pattern:
-                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
-                               str(n+1) + ': unexpected nucleotide - ' +
-                               dna_chain[c][n])
+                raise KeyError(
+                    'Error in codon {}, '
+                    'nucleotide {}: '
+                    'unexpected nucleotide - {}'.format(c+1, n+1,
+                                                        dna_chain[c][n]))
 
     # Replicate DNA chain
     dna2_chain = []
@@ -125,17 +126,19 @@ def transcription(dna_chain):
     # Check every codon
     for c in range(len(dna_chain)):
         if type(dna_chain[c]) != str:
-            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
-                            'string, not ' + type(dna_chain[c]))
+            raise TypeError('Error in codon {}: codon must be string, '
+                            'not {}'.format(c+1, type(dna_chain[c])))
         if len(dna_chain[c]) != 3:
-            raise ValueError('Error in codon ' + str(c+1) + ': number of '
-                             'nucleotides equal to ' + str(len(dna_chain[c])) +
-                             ', must be 3')
+            raise ValueError('Error in codon {}: number of '
+                             'nucleotides equal to {}, '
+                             'must be 3'.format(c+1, len(dna_chain[c])))
         for n in range(len(dna_chain[c])):
             if dna_chain[c][n].upper() not in mrna_pattern:
-                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
-                               str(n+1) + ': unexpected nucleotide - ' +
-                               dna_chain[c][n])
+                raise KeyError(
+                    'Error in codon {}, '
+                    'nucleotide {}: '
+                    'unexpected nucleotide - {}'.format(c+1, n+1,
+                                                        dna_chain[c][n]))
 
     # Transcript DNA chain into mRNA
     mrna = []
@@ -177,17 +180,19 @@ def rev_transcription(mrna_chain):
     # Check every codon
     for c in range(len(mrna_chain)):
         if type(mrna_chain[c]) != str:
-            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
-                            'string, not ' + type(mrna_chain[c]))
+            raise TypeError('Error in codon {}: codon must be '
+                            'string, not {}'.format(c+1, type(mrna_chain[c])))
         if len(mrna_chain[c]) != 3:
-            raise ValueError('Error in codon ' + str(c+1) + ': number of '
-                             'nucleotides equal to ' + str(len(mrna_chain[c]))
-                             + ', must be 3')
+            raise ValueError('Error in codon {}: number of '
+                             'nucleotides equal to {}, '
+                             'must be 3'.format(c+1, len(mrna_chain[c])))
         for n in range(len(mrna_chain[c])):
             if mrna_chain[c][n].upper() not in dna_pattern:
-                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
-                               str(n+1) + ': unexpected nucleotide - ' +
-                               mrna_chain[c][n])
+                raise KeyError(
+                    'Error in codon {}, '
+                    'nucleotide {}: '
+                    'unexpected nucleotide - {}'.format(c+1, n+1,
+                                                        mrna_chain[c][n]))
 
     # Transcript mRNA chain into DNA
     dna = []
@@ -310,17 +315,19 @@ def translation(mrna_chain):
     # Check every codon
     for c in range(len(mrna_chain)):
         if type(mrna_chain[c]) != str:
-            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
-                            'string, not ' + type(mrna_chain[c]))
+            raise TypeError('Error in codon {}: codon must be '
+                            'string, not {}'.format(c+1, type(mrna_chain[c])))
         if len(mrna_chain[c]) != 3:
-            raise ValueError('Error in codon ' + str(c+1) + ': number of '
-                             'nucleotides equal to ' + str(len(mrna_chain[c]))
-                             + ', must be 3')
+            raise ValueError('Error in codon {}: number of '
+                             'nucleotides equal to {}, '
+                             'must be 3'.format(c+1, len(mrna_chain[c])))
         for n in range(len(mrna_chain[c])):
             if mrna_chain[c][n].upper() not in mrna_nucleotides:
-                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
-                               str(n+1) + ': unexpected nucleotide - ' +
-                               mrna_chain[c][n])
+                raise KeyError(
+                    'Error in codon {}, '
+                    'nucleotide {}: '
+                    'unexpected nucleotide - {}'.format(c+1, n+1,
+                                                        mrna_chain[c][n]))
 
     # Translate mRNA to polypeptide chain
     peptide = []

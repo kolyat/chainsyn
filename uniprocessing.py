@@ -71,17 +71,18 @@ def process(chain, pattern):
     # Check every codon of input chain
     for c in range(len(chain)):
         if type(chain[c]) != str:
-            raise TypeError('Error in codon ' + str(c+1) + ': codon must be '
-                            'string, not ' + type(chain[c]))
+            raise TypeError('Error in codon {}: codon must be '
+                            'string, not {}'.format(c+1, type(chain[c])))
         if len(chain[c]) != 3:
-            raise ValueError('Error in codon ' + str(c+1) + ': number of '
-                             'nucleotides equal to ' + str(len(chain[c])) +
-                             ', must be 3')
+            raise ValueError('Error in codon {}: number of '
+                             'nucleotides equal to {}, '
+                             'must be 3'.format(c+1, len(chain[c])))
         for n in range(len(chain[c])):
             if chain[c][n].upper() not in pattern:
-                raise KeyError('Error in codon ' + str(c+1) + ', nucleotide ' +
-                               str(n+1) + ': unexpected nucleotide - ' +
-                               chain[c][n])
+                raise KeyError(
+                    'Error in codon {}, '
+                    'nucleotide {}: '
+                    'unexpected nucleotide - '.format(c+1, n+1, chain[c][n]))
 
     # Process input chain
     processed_chain = []
