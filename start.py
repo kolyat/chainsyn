@@ -4,6 +4,8 @@
 
 """
 Main module of chainsyn
+
+Uses curses library for IO
 """
 
 import curses
