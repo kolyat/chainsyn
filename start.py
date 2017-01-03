@@ -8,6 +8,7 @@ Main module of chainsyn
 Uses curses library for IO
 """
 
+import time
 import curses
 from uniprocessing import *
 
@@ -60,7 +61,7 @@ def print_results(screen, *chains):
 
     # Necessary checks
     if not screen:
-        raise OSError('Stdscr object is not defined')
+        raise OSError('stdscr object is not defined')
     if len(chains) < 4 or len(chains) > 5:
         raise ValueError('Number of arguments must be 4 or 5, '
                          'current - {}'.format(len(chains)))
@@ -74,7 +75,10 @@ def print_results(screen, *chains):
                     'Number of items in arguments {} and {} are not equal: '
                     '{} != {}'.format(i+1, i+2, len(c), len(chains[i+1]))
                 )
-    screen.addstr('\n')
+
+    max_yx = screen.getmaxyx()
+    max_y = max_yx[0]
+    screen.clear()
     # Check of terminal supports colors
     if curses.has_colors():
         # Set up dark gray if possible
@@ -83,7 +87,7 @@ def print_results(screen, *chains):
         # Init color pairs
         curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
         curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
         curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
         # Print color legend
@@ -93,6 +97,7 @@ def print_results(screen, *chains):
         screen.addstr('basic   ', curses.color_pair(3))
         screen.addstr('acidic   ', curses.color_pair(4))
         screen.addstr('(stop codon)\n\n\n', curses.color_pair(5))
+        screen.refresh()
         # Init color pattern for amino acids
         color_pattern = {
             'Phe': curses.color_pair(1),
@@ -117,27 +122,37 @@ def print_results(screen, *chains):
             'Glu': curses.color_pair(4),
             'Gly': curses.color_pair(1)
         }
-        # Print items in chains one by one
-        for i in range(len(chains[0])):
-            for n, c in enumerate(chains, start=0):
-                if c[i] in color_pattern:
-                    screen.addstr(c[i], color_pattern[c[i]])
-                else:
-                    screen.addstr(c[i])
-                if n == len(chains)-1:
-                    screen.addstr("\n")
-                else:
-                    screen.addstr('-')
-    else:
-        for i in range(len(chains[0])):
-            for n, c in enumerate(chains, start=0):
+
+    # Print items in chains one by one
+    y = 0
+    for i in range(len(chains[0])):
+        for n, c in enumerate(chains, start=0):
+            if curses.has_colors() and c[i] in color_pattern:
+                screen.addstr(c[i], color_pattern[c[i]])
+            else:
                 screen.addstr(c[i])
-                if n == len(chains)-1:
-                    screen.addstr("\n")
-                else:
-                    screen.addstr('-')
+            if n == len(chains)-1:
+                screen.addstr('\n')
+                screen.refresh()
+                time.sleep(0.2)
+            else:
+                screen.addstr('-')
+                screen.refresh()
+                time.sleep(0.1)
+            yx = screen.getyx()
+            y = yx[0]
+            if y == max_y-1:
+                screen.addstr('Press any key to continue')
+                screen.getkey()
+                screen.clear()
+    if y != 0:
+        screen.getkey()
+
     # Print conclusion
-    screen.addstr("\n\nProcessed {} codons\n".format(len(chains[0])))
+    if y > max_y-4:
+        screen.clear()
+    screen.addstr('\n\nProcessed {} codon(s)\n'.format(len(chains[0])))
+    screen.refresh()
 
 
 def main(screen):
@@ -166,12 +181,15 @@ def main(screen):
         screen.addstr('{} - Imitate full viral cycle\n'.format(menu_items[1]))
         screen.addstr('{} - Exit\n'.format(menu_items[2]))
         screen.addstr('\n')
+        screen.refresh()
         item = screen.getkey()
 
     # Eucariotic cell polypeptide synthesis
     if item == menu_items[0]:
+        screen.clear()
         screen.addstr('Enter source DNA chain with nucleotides A, T, C or G\n')
         screen.addstr('> ')
+        screen.refresh()
         input_mode(screen)
         y, x = screen.getyx()
         raw_dna = screen.getstr(y, x)
@@ -181,12 +199,15 @@ def main(screen):
         mrna = process(dna2, pattern_mrna)
         polypeptide = translation(mrna)
         # Print results
+        selection_mode(screen)
         print_results(screen, dna1, dna2, mrna, polypeptide)
 
     # Imitate full virus cycle
     if item == menu_items[1]:
+        screen.clear()
         screen.addstr('Enter viral mRNA chain with nucleotides A, U, C or G\n')
         screen.addstr('> ')
+        screen.refresh()
         input_mode(screen)
         y, x = screen.getyx()
         raw_mrna = screen.getstr(y, x)
@@ -197,6 +218,7 @@ def main(screen):
         mrna2 = process(dna2, pattern_mrna)
         polypeptide = translation(mrna2)
         # Print results
+        selection_mode(screen)
         print_results(screen, mrna1, dna1, dna2, mrna2, polypeptide)
 
     # Exit
@@ -204,7 +226,7 @@ def main(screen):
         pass
 
     screen.addstr('Press any key to exit')
-    selection_mode(screen)
+    screen.refresh()
     screen.getkey()
     input_mode(screen)
     curses.endwin()
