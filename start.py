@@ -9,6 +9,7 @@ Uses curses library for IO
 """
 
 import time
+import datetime
 import curses
 from uniprocessing import *
 
@@ -155,6 +156,43 @@ def print_results(screen, *chains):
     screen.refresh()
 
 
+def to_file(*chains):
+    # Necessary checks
+    if len(chains) < 4 or len(chains) > 5:
+        raise ValueError('Number of arguments must be 4 or 5, '
+                         'current - {}'.format(len(chains)))
+    for i, c in enumerate(chains, start=0):
+        if type(c) != list:
+            raise TypeError('Argument {} should be a list, not {}'.format(
+                i+1, type(c)))
+        if i < len(chains)-1:
+            if len(c) != len(chains[i+1]):
+                raise ValueError(
+                    'Number of items in arguments {} and {} are not equal: '
+                    '{} != {}'.format(i+1, i+2, len(c), len(chains[i+1]))
+                )
+
+    # Pick current date and time
+    current_datetime = datetime.datetime.today()
+    now = current_datetime.strftime('%Y%m%d-%H%M%S')
+    # Try to open file
+    out = None
+    try:
+        out = open(r'chains-{}.txt'.format(now), 'wt')
+    except OSError:
+        print('Could not open file: {}'.format(r'chains-{}.txt'.format(now)))
+    # Write data to file
+    for i in range(len(chains[0])):
+        for n, c in enumerate(chains, start=0):
+            out.write(c[i])
+            if n == len(chains)-1:
+                out.write('\n')
+            else:
+                out.write('-')
+    # Close file
+    out.close()
+
+
 def main(screen):
     """
     Main function
@@ -201,6 +239,8 @@ def main(screen):
         # Print results
         selection_mode(screen)
         print_results(screen, dna1, dna2, mrna, polypeptide)
+        # Export to text file
+        to_file(dna1, dna2, mrna, polypeptide)
 
     # Imitate full virus cycle
     if item == menu_items[1]:
@@ -220,6 +260,8 @@ def main(screen):
         # Print results
         selection_mode(screen)
         print_results(screen, mrna1, dna1, dna2, mrna2, polypeptide)
+        # Export to text file
+        to_file(mrna1, dna1, dna2, mrna2, polypeptide)
 
     # Exit
     if item == menu_items[2]:
