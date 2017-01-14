@@ -5,12 +5,14 @@
 """
 Main module of chainsyn
 
-Uses curses library for IO
+Uses curses library for user IO
 """
 
+import os
 import time
 import datetime
 import curses
+import configparser
 from uniprocessing import *
 
 
@@ -156,7 +158,20 @@ def print_results(screen, *chains):
     screen.refresh()
 
 
-def to_file(*chains):
+def to_file(exp_dir, *chains):
+    """
+    Write results to file
+
+    :param exp_dir: directory to export
+    :param chains: set of DNA/RNA/amino acid chains, their number should be
+                   equal to 4 or 5
+
+    :raise OSError: if cannot create output file
+    :raise TypeError: if chain is not a list
+    :raise ValueError: when number of chains is not 4 or 5, if number of items
+                       in chains is not equal
+    """
+
     # Necessary checks
     if len(chains) < 4 or len(chains) > 5:
         raise ValueError('Number of arguments must be 4 or 5, '
@@ -176,11 +191,12 @@ def to_file(*chains):
     current_datetime = datetime.datetime.today()
     now = current_datetime.strftime('%Y%m%d-%H%M%S')
     # Try to open file
-    out = None
     try:
-        out = open(r'chains-{}.txt'.format(now), 'wt')
+        out = open(os.path.join(exp_dir, 'chains-{}.txt'.format(now)), 'wt')
     except OSError:
-        print('Could not open file: {}'.format(r'chains-{}.txt'.format(now)))
+        print('Could not open file: {}'.format(
+            os.path.join(exp_dir, 'chains-{}.txt'.format(now))))
+        return None
     # Write data to file
     for i in range(len(chains[0])):
         for n, c in enumerate(chains, start=0):
@@ -200,10 +216,37 @@ def main(screen):
     :param screen: curses stdscr object
     """
 
+    selection_mode(screen)
+    screen.clear()
+
+    # Set up settings
+    settings = configparser.ConfigParser()
+    # Try to read settings file
+    s = None
+    try:
+        s = open('settings.ini', 'r')
+        settings.read_file(s)
+    except OSError:
+        screen.addstr('Cannot read settings.ini - using defaults\n')
+        # Set defaults if read error
+        settings['EXPORT'] = {
+            'Export': 'no',
+            'ExportDir': ''
+        }
+        # Try to create new settings file
+        try:
+            s = open('settings.ini', 'w')
+            settings.write(s)
+        except OSError:
+            screen.addstr('Cannot write settings.ini with defaults\n')
+        screen.addstr('Press any key to continue')
+        screen.getkey()
+    finally:
+        s.close()
+
+    # Show main menu
     menu_items = ('1', '2', '0')
     item = ''
-
-    selection_mode(screen)
     while item not in menu_items:
         screen.clear()
         screen.addstr('\n')
@@ -240,7 +283,11 @@ def main(screen):
         selection_mode(screen)
         print_results(screen, dna1, dna2, mrna, polypeptide)
         # Export to text file
-        to_file(dna1, dna2, mrna, polypeptide)
+        if settings.has_section('EXPORT') and \
+                settings.has_option('EXPORT', 'Export'):
+            if settings.getboolean('EXPORT', 'Export'):
+                to_file(settings['EXPORT']['ExportDir'],
+                        dna1, dna2, mrna, polypeptide)
 
     # Imitate full virus cycle
     if item == menu_items[1]:
@@ -261,7 +308,11 @@ def main(screen):
         selection_mode(screen)
         print_results(screen, mrna1, dna1, dna2, mrna2, polypeptide)
         # Export to text file
-        to_file(mrna1, dna1, dna2, mrna2, polypeptide)
+        if settings.has_section('EXPORT') and \
+                settings.has_option('EXPORT', 'Export'):
+            if settings.getboolean('EXPORT', 'Export'):
+                to_file(settings['EXPORT']['ExportDir'],
+                        mrna1, dna1, dna2, mrna2, polypeptide)
 
     # Exit
     if item == menu_items[2]:
