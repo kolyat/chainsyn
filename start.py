@@ -209,6 +209,54 @@ def to_file(exp_dir, *chains):
     out.close()
 
 
+def is_file(raw_path):
+    """
+    Check if input data refers to file with data
+
+    :param raw_path: possible path to file
+    :type: str
+
+    :return: True if raw_path is file
+    :return: False if raw_path is not file
+    """
+
+    if os.path.isfile(raw_path):
+        return True
+    else:
+        return False
+
+
+def from_file(source_file):
+    """
+    Read data from source file
+
+    :param source_file: path to source file
+    :type: str
+
+    :return: str with nucleotides
+    """
+
+    # Try to open file
+    try:
+        f = open(r'{}'.format(source_file), 'r')
+    except OSError:
+        print('Cannot open file {}'.format(source_file))
+        return None
+
+    ignore_sym = (' ', '\n')  # Symbols to be ignored
+    raw_data = []
+    # Read file byte by byte
+    while True:
+        s = f.read(1)
+        if s:
+            if s not in ignore_sym:
+                raw_data.append(s)
+        else:
+            break
+    f.close()
+    return ''.join(raw_data)
+
+
 def main(screen):
     """
     Main function
@@ -269,13 +317,19 @@ def main(screen):
     if item == menu_items[0]:
         screen.clear()
         screen.addstr('Enter source DNA chain with nucleotides A, T, C or G\n')
+        screen.addstr('(or path to source file)\n')
         screen.addstr('> ')
         screen.refresh()
         input_mode(screen)
         y, x = screen.getyx()
-        raw_dna = screen.getstr(y, x)
+        raw_string = screen.getstr(y, x)
+        raw_data = str(raw_string)[2:-1]
+        if is_file(raw_data):
+            raw_dna = from_file(raw_data)
+            dna1 = slice_chain(raw_dna.upper())
+        else:
+            dna1 = slice_chain(raw_data.upper())
         # Process input chain
-        dna1 = slice_chain(str(raw_dna)[2:-1].upper())
         dna2 = process(dna1, pattern_dna)
         mrna = process(dna2, pattern_mrna)
         polypeptide = translation(mrna)
@@ -293,13 +347,19 @@ def main(screen):
     if item == menu_items[1]:
         screen.clear()
         screen.addstr('Enter viral mRNA chain with nucleotides A, U, C or G\n')
+        screen.addstr('(or path to source file)\n')
         screen.addstr('> ')
         screen.refresh()
         input_mode(screen)
         y, x = screen.getyx()
-        raw_mrna = screen.getstr(y, x)
+        raw_string = screen.getstr(y, x)
+        raw_data = str(raw_string)[2:-1]
+        if is_file(raw_data):
+            raw_mrna = from_file(raw_data)
+            mrna1 = slice_chain(raw_mrna.upper())
+        else:
+            mrna1 = slice_chain(raw_data.upper())
         # Process input mRNA
-        mrna1 = slice_chain(str(raw_mrna)[2:-1].upper())
         dna1 = process(mrna1, pattern_dna_rev)
         dna2 = process(dna1, pattern_dna)
         mrna2 = process(dna2, pattern_mrna)
