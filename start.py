@@ -79,8 +79,6 @@ def print_results(screen, *chains):
                     '{} != {}'.format(i+1, i+2, len(c), len(chains[i+1]))
                 )
 
-    max_yx = screen.getmaxyx()
-    max_y = max_yx[0]
     screen.clear()
     # Check of terminal supports colors
     if curses.has_colors():
@@ -127,7 +125,6 @@ def print_results(screen, *chains):
         }
 
     # Print items in chains one by one
-    y = 0
     for i in range(len(chains[0])):
         for n, c in enumerate(chains, start=0):
             if curses.has_colors() and c[i] in color_pattern:
@@ -142,20 +139,10 @@ def print_results(screen, *chains):
                 screen.addstr('-')
                 screen.refresh()
                 time.sleep(0.1)
-            yx = screen.getyx()
-            y = yx[0]
-            if y == max_y-1:
-                screen.addstr('Press any key to continue')
-                screen.getkey()
-                screen.clear()
-    if y != 0:
-        screen.getkey()
 
     # Print conclusion
-    if y > max_y-4:
-        screen.clear()
-    screen.addstr('\n\nProcessed {} codon(s)\n'.format(len(chains[0])))
-    screen.refresh()
+    screen.addstr('\n')
+    screen.addstr('Processed {} codon(s)\n'.format(len(chains[0])))
 
 
 def to_file(exp_dir, *chains):
@@ -264,6 +251,7 @@ def main(screen):
     :param screen: curses stdscr object
     """
 
+    screen.scrollok(True)
     selection_mode(screen)
     screen.clear()
 
