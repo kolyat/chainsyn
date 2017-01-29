@@ -99,7 +99,7 @@ def process(chain, pattern):
         raise ProcessErr('{}: input chain must be list of codons, '
                          'got {}'.format(process.__name__, type(chain)))
     if not chain:
-        raise ProcessErr('{}: input chain is empty')
+        raise ProcessErr('{}: input chain is empty'.format(process.__name__))
     # Check if input pattern is correct type and valid
     if type(pattern) != dict:
         raise ProcessErr('{}: input pattern must be dictionary type, '

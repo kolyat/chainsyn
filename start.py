@@ -164,6 +164,10 @@ def main(screen):
                 raise RoutineErr('{}: argument {} should be a list, '
                                  'not {}'.format(print_results.__name__,
                                                  i + 1, type(c)))
+            if not c:
+                raise RoutineErr(
+                    '{}: chain {} is empty'.format(print_results.__name__, i+1)
+                )
             if i < len(chains) - 1:
                 if len(c) != len(chains[i + 1]):
                     raise RoutineErr(
@@ -299,6 +303,7 @@ def main(screen):
         input_mode()
         y, x = screen.getyx()
         raw_string = screen.getstr(y, x)
+        screen.addstr('\n')
         raw_data = str(raw_string)[2:-1]
         dna1 = list()
         dna2 = list()
@@ -309,26 +314,29 @@ def main(screen):
             try:
                 raw_dna = from_file(raw_data)
             except RoutineErr as err:
-                screen.addstr(err)
+                screen.addstr('{}\n'.format(str(err)))
             try:
                 dna1 = slice_chain(raw_dna.upper())
             except ProcessErr as err:
-                screen.addstr(err)
+                screen.addstr('{}\n'.format(str(err)))
         else:
             try:
                 dna1 = slice_chain(raw_data.upper())
             except ProcessErr as err:
-                screen.addstr(err)
+                screen.addstr('{}\n'.format(str(err)))
         # Process input chain
         try:
             dna2 = process(dna1, pattern_dna)
             mrna = process(dna2, pattern_mrna)
             polypeptide = translation(mrna)
         except ProcessErr as err:
-            screen.addstr(err)
+            screen.addstr('{}\n'.format(str(err)))
         # Print results
         selection_mode()
-        print_results(dna1, dna2, mrna, polypeptide)
+        try:
+            print_results(dna1, dna2, mrna, polypeptide)
+        except RoutineErr as err:
+            screen.addstr('{}\n'.format(str(err)))
         # Export to text file
         if settings.has_section('EXPORT') and \
                 settings.has_option('EXPORT', 'Export'):
@@ -337,7 +345,7 @@ def main(screen):
                     to_file(settings['EXPORT']['ExportDir'],
                             dna1, dna2, mrna, polypeptide)
                 except RoutineErr as err:
-                    screen.addstr(err)
+                    screen.addstr('{}\n'.format(str(err)))
 
     # Imitate full virus cycle
     if item == menu_items[1]:
@@ -348,6 +356,7 @@ def main(screen):
         input_mode()
         y, x = screen.getyx()
         raw_string = screen.getstr(y, x)
+        screen.addstr('\n')
         raw_data = str(raw_string)[2:-1]
         mrna1 = list()
         dna1 = list()
@@ -359,16 +368,16 @@ def main(screen):
             try:
                 raw_mrna = from_file(raw_data)
             except RoutineErr as err:
-                screen.addstr(err)
+                screen.addstr('{}\n'.format(str(err)))
             try:
                 mrna1 = slice_chain(raw_mrna.upper())
             except ProcessErr as err:
-                screen.addstr(err)
+                screen.addstr('{}\n'.format(str(err)))
         else:
             try:
                 mrna1 = slice_chain(raw_data.upper())
             except ProcessErr as err:
-                screen.addstr(err)
+                screen.addstr('{}\n'.format(str(err)))
         # Process input mRNA
         try:
             dna1 = process(mrna1, pattern_dna_rev)
@@ -376,10 +385,13 @@ def main(screen):
             mrna2 = process(dna2, pattern_mrna)
             polypeptide = translation(mrna2)
         except ProcessErr as err:
-            screen.addstr(err)
+            screen.addstr('{}\n'.format(str(err)))
         # Print results
         selection_mode()
-        print_results(mrna1, dna1, dna2, mrna2, polypeptide)
+        try:
+            print_results(mrna1, dna1, dna2, mrna2, polypeptide)
+        except RoutineErr as err:
+            screen.addstr('{}\n'.format(str(err)))
         # Export to text file
         if settings.has_section('EXPORT') and \
                 settings.has_option('EXPORT', 'Export'):
@@ -388,7 +400,7 @@ def main(screen):
                     to_file(settings['EXPORT']['ExportDir'],
                             mrna1, dna1, dna2, mrna2, polypeptide)
                 except RoutineErr as err:
-                    screen.addstr(err)
+                    screen.addstr('{}\n'.format(str(err)))
 
     # Exit
     if item == menu_items[2]:
