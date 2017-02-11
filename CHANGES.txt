@@ -1,5 +1,5 @@
-2017-01-15
-v0.2 - several improvements
+2017-02-12
+v0.2 - next release with major improvements
 
 2016-12-27
 v0.1 - initial release
