@@ -1,11 +1,9 @@
-# Copyright (c) 2016 Kirill 'Kolyat' Kiselnikov
+# Copyright (c) 2016-2017 Kirill 'Kolyat' Kiselnikov
 # This file is the part of chainsyn, released under modified MIT license.
 # See the file LICENSE.txt included in this distribution
 
 """
-Module "test_uniprocessing" contains unit-tests to uniprocessing module
-
-TestProcess - test to process() function
+Module contains unit-tests to uniprocessing module
 """
 
 import unittest
@@ -37,7 +35,7 @@ class TestProcess(unittest.TestCase):
 
     def test_pattern_dna_UUU(self):
         """DNA pattern, UUU-codon"""
-        self.assertRaises(KeyError, process, ['UUU'], pattern_dna)
+        self.assertRaises(ProcessErr, process, ['UUU'], pattern_dna)
 
     # Tests with mRNA pattern
     def test_pattern_mrna_AAA(self):
@@ -58,7 +56,7 @@ class TestProcess(unittest.TestCase):
 
     def test_pattern_mrna_UUU(self):
         """mRNA pattern, UUU-codon"""
-        self.assertRaises(KeyError, process, ['UUU'], pattern_mrna)
+        self.assertRaises(ProcessErr, process, ['UUU'], pattern_mrna)
 
     # Test with reversed DNA pattern
     def test_pattern_dna_rev_AAA(self):
@@ -67,7 +65,7 @@ class TestProcess(unittest.TestCase):
 
     def test_pattern_dna_rev_TTT(self):
         """Reversed DNA pattern, TTT-codon"""
-        self.assertRaises(KeyError, process, ['ttt'], pattern_dna_rev)
+        self.assertRaises(ProcessErr, process, ['ttt'], pattern_dna_rev)
 
     def test_pattern_dna_rev_CCC(self):
         """Reversed DNA pattern, CCC-codon"""
@@ -84,29 +82,29 @@ class TestProcess(unittest.TestCase):
     # Negative tests for 'chain' argument
     def test_chain_invalid_type(self):
         """Chain - invalid type"""
-        self.assertRaises(TypeError, process, 3, pattern_dna)
+        self.assertRaises(ProcessErr, process, 3, pattern_dna)
 
     def test_chain_empty(self):
         """Chain - empty"""
-        self.assertRaises(ValueError, process, [], pattern_dna)
+        self.assertRaises(ProcessErr, process, [], pattern_dna)
 
     def test_chain_bad_codon(self):
         """Chain - codon contains one nucleotide"""
-        self.assertRaises(ValueError, process, ['a'], pattern_dna)
+        self.assertRaises(ProcessErr, process, ['a'], pattern_dna)
 
     # Negative tests for 'pattern' argument
     def test_pattern_invalid_type(self):
         """Pattern - invalid type"""
-        self.assertRaises(TypeError, process, ['aaa'], 3)
+        self.assertRaises(ProcessErr, process, ['aaa'], 3)
 
     def test_pattern_empty(self):
         """Pattern - empty"""
-        self.assertRaises(ValueError, process, ['aaa'], {})
+        self.assertRaises(ProcessErr, process, ['aaa'], {})
 
     def test_invalid_pattern(self):
         """Pattern is incorrect"""
-        self.assertRaises(KeyError, process, ['aaa'], {'A': '1', 'T': '2',
-                                                       'C': '3', 'G': '4'})
+        self.assertRaises(ProcessErr, process, ['aaa'], {'A': '1', 'T': '2',
+                                                         'C': '3', 'G': '4'})
 
 
 if __name__ == '__main__':
