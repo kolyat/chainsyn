@@ -19,58 +19,6 @@ class RoutineErr(Exception):
     pass
 
 
-def to_file(exp_dir, *chains):
-    """
-    Write results to file
-
-    :param exp_dir: directory to export
-    :param chains: set of DNA/RNA/amino acid chains, their number should be
-                   equal to 4 or 5
-
-    :raise RoutineErr:
-      - if cannot create output file
-      - chain is not list
-      - number of chains is not 4 or 5
-      - number of chain's items is not equal to each other
-    """
-
-    # Necessary checks
-    if len(chains) < 4 or len(chains) > 5:
-        raise RoutineErr('{}: number of arguments must be 4 or 5, '
-                         'got {}'.format(to_file.__name__, len(chains)))
-    for i, c in enumerate(chains, start=0):
-        if type(c) != list:
-            raise RoutineErr('{}: argument {} should be a list, not {}'.format(
-                to_file.__name__, i+1, type(c)))
-        if i < len(chains)-1:
-            if len(c) != len(chains[i+1]):
-                raise RoutineErr(
-                    '{}: number of items in arguments {} and {} '
-                    'are not equal: {} != {}'.format(
-                        to_file.__name__, i+1, i+2, len(c), len(chains[i+1]))
-                )
-
-    # Pick current date and time
-    current_datetime = datetime.datetime.today()
-    now = current_datetime.strftime('%Y%m%d-%H%M%S')
-    # Try to open file
-    try:
-        out = open(os.path.join(exp_dir, 'chains-{}.txt'.format(now)), 'wt')
-    except OSError:
-        raise RoutineErr('{}: could not open file: {}'.format(to_file.__name__,
-                         os.path.join(exp_dir, 'chains-{}.txt'.format(now))))
-    # Write data to file
-    for i in range(len(chains[0])):
-        for n, c in enumerate(chains, start=0):
-            out.write(c[i])
-            if n == len(chains)-1:
-                out.write('\n')
-            else:
-                out.write('-')
-    # Close file
-    out.close()
-
-
 def is_file(raw_path):
     """Check if input data is a file name
 
@@ -108,6 +56,34 @@ def from_file(source_file):
     return data
 
 
+def to_file(exp_dir, chain):
+    """Write results to file
+
+    :param exp_dir: directory to export
+    :param chain: Chain object
+
+    :raise RoutineErr: on file I/O error
+
+    :return True: on success
+    """
+    now = datetime.datetime.today().strftime('%Y%m%d-%H%M%S-%f')
+    file_name = os.path.join(exp_dir, 'chains-{}.txt'.format(now))
+    try:
+        out = open(file_name, 'wt')
+    except OSError:
+        raise RoutineErr('Could not open file: {}'.format(file_name))
+    if chain.dna1:
+        out.write('>{}-DNA1\n'.format(chain.info))
+        out.write('{}\n'.format(chain.dna1))
+        out.write('\n')
+    if chain.dna2:
+        out.write('>{}-DNA2\n'.format(chain.info))
+        out.write('{}\n'.format(chain.dna2))
+        out.write('\n')
+    out.close()
+    return True
+
+
 def generate_chain_info():
     """Generate info for manually entered chain"""
 
@@ -115,57 +91,31 @@ def generate_chain_info():
 
 
 def selection_mode(screen):
-    """Switch to selection mode"""
+    """Switch to selection mode
 
+    :param screen: main window
+    """
     curses.noecho()
     curses.cbreak()
     screen.keypad(True)
 
 
 def input_mode(screen):
-    """Switch to input mode"""
+    """Switch to input mode
 
+    :param screen: main window
+    """
     curses.echo()
     curses.nocbreak()
     screen.keypad(False)
 
 
-def print_results(*chains):
+def print_results(screen, chain):
+    """Print results of processing
+
+    :param chain: Chain object
+    :param screen: main window
     """
-    Print results of genetic processes
-
-    :param chains: set of DNA/RNA/amino acid chains, their number should be
-                   equal to 4 or 5
-
-    :raise RoutineErr:
-      - chain is not a list
-      - number of chains is not 4 or 5
-      - number of items in chains is not equal
-    """
-
-    # Necessary checks
-    if len(chains) < 4 or len(chains) > 5:
-        raise RoutineErr('{}: number of arguments must be 4 or 5, '
-                         'got {}'.format(print_results.__name__,
-                                         len(chains)))
-    for i, c in enumerate(chains, start=0):
-        if type(c) != list:
-            raise RoutineErr('{}: argument {} should be a list, '
-                             'not {}'.format(print_results.__name__,
-                                             i + 1, type(c)))
-        if not c:
-            raise RoutineErr(
-                '{}: chain {} is empty'.format(print_results.__name__, i + 1)
-            )
-        if i < len(chains) - 1:
-            if len(c) != len(chains[i + 1]):
-                raise RoutineErr(
-                    '{}: number of items in arguments {} and {} '
-                    'are not equal: {} != {}'.format(
-                        print_results.__name__, i + 1, i + 2,
-                        len(c), len(chains[i + 1]))
-                )
-
     screen.clear()
     # Check of terminal supports colors
     if curses.has_colors():
@@ -178,58 +128,57 @@ def print_results(*chains):
         curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
         curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
         curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        # Print color legend
-        screen.addstr('Amino acids:\n')
-        screen.addstr('nonpolar   ', curses.color_pair(1))
-        screen.addstr('polar   ', curses.color_pair(2))
-        screen.addstr('basic   ', curses.color_pair(3))
-        screen.addstr('acidic   ', curses.color_pair(4))
-        screen.addstr('(stop codon)\n\n\n', curses.color_pair(5))
-        screen.refresh()
-        # Init color pattern for amino acids
-        color_pattern = {
-            'Phe': curses.color_pair(1),
-            'Leu': curses.color_pair(1),
-            'Ser': curses.color_pair(2),
-            'Pro': curses.color_pair(1),
-            'His': curses.color_pair(3),
-            'Gln': curses.color_pair(2),
-            'Tyr': curses.color_pair(2),
-            'xxx': curses.color_pair(5),
-            'Cys': curses.color_pair(2),
-            'Trp': curses.color_pair(1),
-            'Arg': curses.color_pair(3),
-            'Ile': curses.color_pair(1),
-            'Met': curses.color_pair(1),
-            'Thr': curses.color_pair(2),
-            'Asn': curses.color_pair(2),
-            'Lys': curses.color_pair(3),
-            'Val': curses.color_pair(1),
-            'Ala': curses.color_pair(1),
-            'Asp': curses.color_pair(4),
-            'Glu': curses.color_pair(4),
-            'Gly': curses.color_pair(1)
-        }
-
-    # Print items in chains one by one
-    for i in range(len(chains[0])):
-        for n, c in enumerate(chains, start=0):
-            if curses.has_colors() and c[i] in color_pattern:
-                screen.addstr(c[i], color_pattern[c[i]])
-            else:
-                screen.addstr(c[i])
-            if n == len(chains) - 1:
-                screen.addstr('\n')
-                screen.refresh()
-                time.sleep(0.2)
-            else:
-                screen.addstr('-')
-                screen.refresh()
-                time.sleep(0.1)
-
-    # Print conclusion
-    screen.addstr('\n')
-    screen.addstr('Processed {} codon(s)\n'.format(len(chains[0])))
+        curses.init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)
+    else:
+        for i in (1, 2, 3, 4, 5, 6):
+            curses.init_pair(i, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    # Init color for nucleotides
+    nucleo_color_pattern = {
+        'A': curses.color_pair(6),
+        'T': curses.color_pair(4),
+        'U': curses.color_pair(1),
+        'C': curses.color_pair(2),
+        'G': curses.color_pair(3)
+    }
+    # Init color pattern for amino acids
+    abc_color_pattern = {
+        'F': curses.color_pair(1),
+        'L': curses.color_pair(1),
+        'S': curses.color_pair(2),
+        'P': curses.color_pair(1),
+        'H': curses.color_pair(3),
+        'Q': curses.color_pair(2),
+        'Y': curses.color_pair(2),
+        '.': curses.color_pair(5),
+        'C': curses.color_pair(2),
+        'W': curses.color_pair(1),
+        'R': curses.color_pair(3),
+        'I': curses.color_pair(1),
+        'M': curses.color_pair(1),
+        'T': curses.color_pair(2),
+        'N': curses.color_pair(2),
+        'K': curses.color_pair(3),
+        'V': curses.color_pair(1),
+        'A': curses.color_pair(1),
+        'D': curses.color_pair(4),
+        'E': curses.color_pair(4),
+        'G': curses.color_pair(1)
+    }
+    # Print results
+    if chain.dna1:
+        screen.addstr('{} - first DNA chain\n\n')
+        for n in chain.dna1:
+            screen.addstr(n, nucleo_color_pattern[n])
+            screen.refresh()
+        screen.addstr('\n\n\n')
+        screen.getkey()
+    if chain.dna2:
+        screen.addstr('{} - second DNA chain\n\n')
+        for n in chain.dna2:
+            screen.addstr(n, nucleo_color_pattern[n])
+            screen.refresh()
+        screen.addstr('\n\n\n')
+        screen.getkey()
 
 
 def main(screen):
@@ -241,8 +190,8 @@ def main(screen):
     def replication():
         """Replication menu item
 
-        :return True: if success
-        :return False: if fail
+        :return True: on success
+        :return False: if fails
         """
         screen.clear()
         screen.addstr('Enter source DNA '
@@ -273,21 +222,19 @@ def main(screen):
                 screen.addstr('{}\n'.format(str(err)))
             finally:
                 chains.append(chain)
-        # Print results
-        selection_mode(screen)
-        try:
-            print_results(dna1, dna2, mrna, polypeptide)
-        except RoutineErr as err:
-            screen.addstr('{}\n'.format(str(err)))
         # Export to text file
-        if settings.has_section('EXPORT') and \
-                settings.has_option('EXPORT', 'Export'):
-            if settings.getboolean('EXPORT', 'Export'):
+        if settings.has_section('EXPORT') \
+                and settings.has_option('EXPORT', 'Export') \
+                and settings.getboolean('EXPORT', 'Export'):
+            for chain in chains:
                 try:
-                    to_file(settings['EXPORT']['ExportDir'],
-                            dna1, dna2, mrna, polypeptide)
+                    to_file(settings['EXPORT']['ExportDir'], chain)
                 except RoutineErr as err:
                     screen.addstr('{}\n'.format(str(err)))
+        # Print results
+        selection_mode(screen)
+        for chain in chains:
+            print_results(screen, chain)
 
     # Init main window
     screen.scrollok(True)
@@ -322,7 +269,8 @@ def main(screen):
 
     # Main cycle
     menu_items = {
-        'replication': 0,
+        'replication': 1,
+        'exit': 0
     }
     while True:
         screen.clear()
@@ -335,133 +283,20 @@ def main(screen):
         screen.addstr('\n')
         screen.addstr('{} - Replication (DNA -> DNA)\n'
                       ''.format(menu_items['replication']))
-        screen.addstr(
-            '{} - Eucariotic cell '
-            'polypeptide synthesis\n'.format(menu_items[0]))
-        screen.addstr('{} - Imitate full viral cycle\n'.format(menu_items[1]))
-        screen.addstr('{} - Exit\n'.format(menu_items[2]))
+        # screen.addstr('{} - Eucariotic cell polypeptide synthesis\n'.format(menu_items[0]))
+        # screen.addstr('{} - Imitate full viral cycle\n'.format(menu_items[1]))
+        screen.addstr('{} - Exit\n'.format(menu_items['exit']))
         screen.addstr('\n')
         screen.refresh()
         item = screen.getkey()
         if item == menu_items['replication']:
             replication()
-
-    # Eucariotic cell polypeptide synthesis
-    if item == menu_items[0]:
-        screen.addstr('Enter source DNA chain with nucleotides A, T, C or G\n')
-        screen.addstr('(or path to source file)\n')
-        screen.addstr('> ')
-        screen.refresh()
-        input_mode()
-        y, x = screen.getyx()
-        raw_string = screen.getstr(y, x)
-        screen.addstr('\n')
-        raw_data = str(raw_string)[2:-1]
-        dna1 = list()
-        dna2 = list()
-        mrna = list()
-        polypeptide = list()
-        if is_file(raw_data):
-            raw_dna = ''
-            try:
-                raw_dna = from_file(raw_data)
-            except RoutineErr as err:
-                screen.addstr('{}\n'.format(str(err)))
-            try:
-                dna1 = slice_chain(raw_dna.upper())
-            except ProcessErr as err:
-                screen.addstr('{}\n'.format(str(err)))
-        else:
-            try:
-                dna1 = slice_chain(raw_data.upper())
-            except ProcessErr as err:
-                screen.addstr('{}\n'.format(str(err)))
-        # Process input chain
-        try:
-            dna2 = process(dna1, pattern_dna)
-            mrna = process(dna2, pattern_mrna)
-            polypeptide = translation(mrna)
-        except ProcessErr as err:
-            screen.addstr('{}\n'.format(str(err)))
-        # Print results
-        selection_mode()
-        try:
-            print_results(dna1, dna2, mrna, polypeptide)
-        except RoutineErr as err:
-            screen.addstr('{}\n'.format(str(err)))
-        # Export to text file
-        if settings.has_section('EXPORT') and \
-                settings.has_option('EXPORT', 'Export'):
-            if settings.getboolean('EXPORT', 'Export'):
-                try:
-                    to_file(settings['EXPORT']['ExportDir'],
-                            dna1, dna2, mrna, polypeptide)
-                except RoutineErr as err:
-                    screen.addstr('{}\n'.format(str(err)))
-
-    # Imitate full virus cycle
-    if item == menu_items[1]:
-        screen.addstr('Enter viral mRNA chain with nucleotides A, U, C or G\n')
-        screen.addstr('(or path to source file)\n')
-        screen.addstr('> ')
-        screen.refresh()
-        input_mode()
-        y, x = screen.getyx()
-        raw_string = screen.getstr(y, x)
-        screen.addstr('\n')
-        raw_data = str(raw_string)[2:-1]
-        mrna1 = list()
-        dna1 = list()
-        dna2 = list()
-        mrna2 = list()
-        polypeptide = list()
-        if is_file(raw_data):
-            raw_mrna = ''
-            try:
-                raw_mrna = from_file(raw_data)
-            except RoutineErr as err:
-                screen.addstr('{}\n'.format(str(err)))
-            try:
-                mrna1 = slice_chain(raw_mrna.upper())
-            except ProcessErr as err:
-                screen.addstr('{}\n'.format(str(err)))
-        else:
-            try:
-                mrna1 = slice_chain(raw_data.upper())
-            except ProcessErr as err:
-                screen.addstr('{}\n'.format(str(err)))
-        # Process input mRNA
-        try:
-            dna1 = process(mrna1, pattern_dna_rev)
-            dna2 = process(dna1, pattern_dna)
-            mrna2 = process(dna2, pattern_mrna)
-            polypeptide = translation(mrna2)
-        except ProcessErr as err:
-            screen.addstr('{}\n'.format(str(err)))
-        # Print results
-        selection_mode()
-        try:
-            print_results(mrna1, dna1, dna2, mrna2, polypeptide)
-        except RoutineErr as err:
-            screen.addstr('{}\n'.format(str(err)))
-        # Export to text file
-        if settings.has_section('EXPORT') and \
-                settings.has_option('EXPORT', 'Export'):
-            if settings.getboolean('EXPORT', 'Export'):
-                try:
-                    to_file(settings['EXPORT']['ExportDir'],
-                            mrna1, dna1, dna2, mrna2, polypeptide)
-                except RoutineErr as err:
-                    screen.addstr('{}\n'.format(str(err)))
-
-    # Exit
-    if item == menu_items[2]:
-        pass
-
+        if item == menu_items['exit']:
+            break
     screen.addstr('Press any key to exit')
     screen.refresh()
     screen.getkey()
-    input_mode()
+    input_mode(screen)
     curses.endwin()
 
 

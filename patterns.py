@@ -28,6 +28,93 @@ rna_to_dna = {
     'C': 'G',
     'G': 'C'
 }
+rna_to_abc = {
+    # Phenylalanine
+    'UUU': 'F',
+    'UUC': 'F',
+    # Leucine
+    'UUA': 'L',
+    'UUG': 'L',
+    'CUU': 'L',
+    'CUC': 'L',
+    'CUA': 'L',
+    'CUG': 'L',
+    # Serine
+    'UCU': 'S',
+    'UCC': 'S',
+    'UCA': 'S',
+    'UCG': 'S',
+    'AGU': 'S',
+    'AGC': 'S',
+    # Proline
+    'CCU': 'P',
+    'CCC': 'P',
+    'CCA': 'P',
+    'CCG': 'P',
+    # Histidine
+    'CAU': 'H',
+    'CAC': 'H',
+    # Glutamine
+    'CAA': 'Q',
+    'CAG': 'Q',
+    # Tyrosine
+    'UAU': 'Y',
+    'UAC': 'Y',
+    # Stop codons
+    'UAA': '.',
+    'UAG': '.',
+    'UGA': '.',
+    # Cysteine
+    'UGU': 'C',
+    'UGC': 'C',
+    # Tryptophan
+    'UGG': 'W',
+    # Arginine
+    'CGU': 'R',
+    'CGC': 'R',
+    'CGA': 'R',
+    'CGG': 'R',
+    'AGA': 'R',
+    'AGG': 'R',
+    # Isoleucine
+    'AUU': 'I',
+    'AUC': 'I',
+    'AUA': 'I',
+    # Methionine
+    'AUG': 'M',
+    # Threonine
+    'ACU': 'T',
+    'ACC': 'T',
+    'ACA': 'T',
+    'ACG': 'T',
+    # Asparagine
+    'AAU': 'N',
+    'AAC': 'N',
+    # Lysine
+    'AAA': 'K',
+    'AAG': 'K',
+    # Valine
+    'GUU': 'V',
+    'GUC': 'V',
+    'GUA': 'V',
+    'GUG': 'V',
+    # Alanine
+    'GCU': 'A',
+    'GCC': 'A',
+    'GCA': 'A',
+    'GCG': 'A',
+    # Aspartate
+    'GAU': 'D',
+    'GAC': 'D',
+    # Glutamate
+    'GAA': 'E',
+    'GAG': 'E',
+    # Glycine
+    'GGU': 'G',
+    'GGC': 'G',
+    'GGA': 'G',
+    'GGG': 'G'
+}
 
 # ABC patterns (ABC is amino acid 'alphabet')
 abc = 'ARNDCQEGHILKMFPSTWYV'
@@ -74,5 +161,5 @@ abc_to_rna = {
     'W': ('UGG',),
     'Y': ('UAU', 'UAC'),
     'V': ('GUU', 'GUC', 'GUA', 'GUG'),
-    'x': ('UAA', 'UGA', 'UAG')
+    '.': ('UAA', 'UGA', 'UAG')
 }
