@@ -2,35 +2,23 @@
 # This file is the part of chainsyn, released under modified MIT license
 # See the file LICENSE.txt included in this distribution
 
-"""
-Module with newer processing functions
-"""
+# TODO: module description
+""""""
 
 
-class ProcessErr(Exception):
-    """Exception class for process errors"""
+class ProcessingErr(Exception):
+    """Exception class for processing errors"""
     pass
 
-pattern_dna = {  # DNA to DNA
-    'A': 'T',  # Adenine - Thymine
-    'T': 'A',  # Thymine - Adenine
-    'C': 'G',  # Cytosine - Guanine
-    'G': 'C'   # Guanine - Cytosine
-}
-pattern_mrna = {  # DNA to mRNA
-    'A': 'U',  # Adenine - Uracil
-    'T': 'A',  # Thymine - Adenine
-    'C': 'G',  # Cytosine - Guanine
-    'G': 'C'   # Guanine - Cytosine
-}
-pattern_dna_rev = {  # mRNA to DNA
-    'A': 'T',  # Adenine - Thymine
-    'U': 'A',  # Uracil - Adenine
-    'C': 'G',  # Cytosine - Guanine
-    'G': 'C'   # Guanine - Cytosine
-}
 
-valid_patterns = (pattern_dna, pattern_mrna, pattern_dna_rev)
+class Chain(object):
+    """Main class for chain processing"""
+
+    info, raw = '', ''
+
+    def __init__(self, info, raw):
+        self.info = info
+        self.raw = raw
 
 
 def slice_chain(chain):

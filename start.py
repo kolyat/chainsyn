@@ -13,7 +13,8 @@ import time
 import datetime
 import curses
 import configparser
-from uniprocessing import *
+import re
+import processing
 
 
 class RoutineErr(Exception):
@@ -74,16 +75,13 @@ def to_file(exp_dir, *chains):
 
 
 def is_file(raw_path):
-    """
-    Check if input data refers to file with data
+    """Check if input data is a file name
 
     :param raw_path: possible path to file
-    :type: str
 
     :return: True if raw_path is file
     :return: False if raw_path is not file
     """
-
     if os.path.isfile(raw_path):
         return True
     else:
@@ -91,52 +89,47 @@ def is_file(raw_path):
 
 
 def from_file(source_file):
-    """
-    Read data from source file
+    """Read data from source file in FASTA format
 
     :param source_file: path to source file
-    :type: str
 
-    :return: str with nucleotides
-    :raise RoutineErr if cannot open source file
+    :return: dict with description(s) and stored chain(s)
+    :raise RoutineErr if could not open source file
     """
-
     # Try to open file
     try:
-        f = open(r'{}'.format(source_file), 'r')
+        with open(source_file, 'rt') as f:
+            raw = ''.join(f.read().splitlines(keepends=False))
+            f.close()
     except OSError:
-        raise RoutineErr('{}: cannot open file {}'.format(from_file.__name__,
-                                                          source_file))
+        raise RoutineErr('Could not open file: {}'.format(source_file))
+    # Parse file
+    data = dict()
+    pat = re.compile('^>(.+)$([A-Z]+)')
+    for it in pat.finditer(raw):
+        data.update({it.group(1): it.group(2)})
+    return data
 
-    ignore_sym = (' ', '\n')  # Symbols to be ignored
-    raw_data = []
-    # Read file byte by byte
-    while True:
-        s = f.read(1)
-        if s:
-            if s not in ignore_sym:
-                raw_data.append(s)
-        else:
-            break
-    f.close()
-    return ''.join(raw_data)
 
+def generate_chain_info():
+    """Generate info for manually entered chain"""
+
+    return 'chainsyn-{}'.format(datetime.datetime.strftime('%Y%m%d-%H%M%S'))
 
 def main(screen):
-    """
-    Main function
+    """Main function
 
     :param screen: main window
     """
 
     def selection_mode():
-        """Switch to selection mode (e. g. menu item selection)"""
+        """Switch to selection mode"""
         curses.noecho()
         curses.cbreak()
         screen.keypad(True)
 
     def input_mode():
-        """Switch to input mode (e. g. to write string of nucleotides)"""
+        """Switch to input mode"""
         curses.echo()
         curses.nocbreak()
         screen.keypad(False)
@@ -242,6 +235,52 @@ def main(screen):
         screen.addstr('\n')
         screen.addstr('Processed {} codon(s)\n'.format(len(chains[0])))
 
+    def replication():
+        """Replication menu item"""
+        screen.addstr('Enter source DNA '
+                      'or path to source file in FASTA format\n')
+        screen.addstr('> ')
+        screen.refresh()
+        input_mode()
+        y, x = screen.getyx()
+        input_data = screen.getstr(y, x)
+        screen.addstr('\n')
+        input_str = input_data.decode()
+        source = dict()
+        if is_file(input_str):
+            try:
+                source.update(from_file(input_str))
+            except RoutineErr as err:
+                screen.addstr('{}\n'.format(str(err)))
+        else:
+            source.update({generate_chain_info(): input_str})
+        # Process source data
+        chains = list()
+        for s in source:
+            chain = processing.Chain(s, source[s])
+            # TODO: continue here
+            try:
+                dna2 = process(dna1, pattern_dna)
+                mrna = process(dna2, pattern_mrna)
+                polypeptide = translation(mrna)
+            except ProcessErr as err:
+                screen.addstr('{}\n'.format(str(err)))
+        # Print results
+        selection_mode()
+        try:
+            print_results(dna1, dna2, mrna, polypeptide)
+        except RoutineErr as err:
+            screen.addstr('{}\n'.format(str(err)))
+        # Export to text file
+        if settings.has_section('EXPORT') and \
+                settings.has_option('EXPORT', 'Export'):
+            if settings.getboolean('EXPORT', 'Export'):
+                try:
+                    to_file(settings['EXPORT']['ExportDir'],
+                            dna1, dna2, mrna, polypeptide)
+                except RoutineErr as err:
+                    screen.addstr('{}\n'.format(str(err)))
+
     # Init main window
     screen.scrollok(True)
     selection_mode()
@@ -252,7 +291,7 @@ def main(screen):
     # Try to read settings file
     s = None
     try:
-        s = open('settings.ini', 'r')
+        s = open('settings.ini', 'rt')
         settings.read_file(s)
     except OSError:
         screen.addstr('Cannot read settings.ini - using defaults\n')
@@ -263,19 +302,22 @@ def main(screen):
         }
         # Try to create new settings file
         try:
-            s = open('settings.ini', 'w')
+            s = open('settings.ini', 'wt')
             settings.write(s)
         except OSError:
             screen.addstr('Cannot write settings.ini with defaults\n')
         screen.addstr('Press any key to continue')
         screen.getkey()
     finally:
-        s.close()
+        if s:
+            s.close()
 
-    # Show main menu
-    menu_items = ('1', '2', '0')
-    item = ''
-    while item not in menu_items:
+    # Main cycle
+    menu_items = {
+        'replication': 0,
+    }
+    while True:
+        item = ''
         screen.clear()
         screen.addstr('\n')
         screen.addstr('========\n')
@@ -284,6 +326,8 @@ def main(screen):
         screen.addstr('\n\n')
         screen.addstr('Main menu\n')
         screen.addstr('\n')
+        screen.addstr('{} - Replication (DNA -> DNA)\n'
+                      ''.format(menu_items['replication']))
         screen.addstr(
             '{} - Eucariotic cell '
             'polypeptide synthesis\n'.format(menu_items[0]))
@@ -292,6 +336,11 @@ def main(screen):
         screen.addstr('\n')
         screen.refresh()
         item = screen.getkey()
+        if item not in menu_items.values():
+            continue
+        if item == menu_items['replication']:
+            replication()
+
     screen.clear()
 
     # Eucariotic cell polypeptide synthesis
