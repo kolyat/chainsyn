@@ -5,6 +5,9 @@
 # TODO: module description
 """"""
 
+import re
+import patterns
+
 
 class ProcessingErr(Exception):
     """Exception class for processing errors"""
@@ -14,12 +17,31 @@ class ProcessingErr(Exception):
 class Chain(object):
     """Main class for chain processing"""
 
-    info, raw = '', ''
+    info, raw, dna1, dna2 = '', '', '', ''
 
     def __init__(self, info, raw):
         self.info = info
         self.raw = raw
 
+    def replicate(self):
+        """DNA -> DNA
+
+        :raise ProcessingErr: if raw string contains nonDNA nucleotide
+
+        :return replicated DNA chain
+        """
+        invalid = re.search('[^{}]+'.format(patterns.dna), self.raw)
+        if invalid:
+            raise ProcessingErr(
+                'Error in replication: unexpected nucleotide - {} '
+                'at position {}'.format(invalid.group(0), invalid.start())
+            )
+        self.dna1 = self.raw
+        dna = list()
+        for n in self.dna1:
+            dna.append(patterns.dna_to_dna[n])
+        self.dna2 = ''.join(dna)
+        return self.dna2
 
 def slice_chain(chain):
     """
@@ -56,75 +78,6 @@ def slice_chain(chain):
             codon += raw_chain.pop(0)
         output_chain.append(codon)
     return output_chain
-
-
-def process(chain, pattern):
-    """
-    Function of universal processing
-
-    :param chain: codons (strings) with nucleotides
-    :type chain: list
-
-    :param pattern: any pattern (dictionary) which is used to build another
-                        chain
-    :type pattern: dict
-
-    :return list with codons (strings) of second chain
-
-    :raise ProcessErr:
-      - chain is not list
-      - codon is not a string
-      - pattern is not a dictionary
-      - pattern is empty
-      - chain is empty
-      - number of chain's nucleotides is not equal to 3
-      - codon contains invalid nucleotides
-      - pattern is not valid
-    """
-
-    # Check if input chain is correct type and not empty
-    if type(chain) != list:
-        raise ProcessErr('{}: input chain must be list of codons, '
-                         'got {}'.format(process.__name__, type(chain)))
-    if not chain:
-        raise ProcessErr('{}: input chain is empty'.format(process.__name__))
-    # Check if input pattern is correct type and valid
-    if type(pattern) != dict:
-        raise ProcessErr('{}: input pattern must be dictionary type, '
-                         'got {}'.format(process.__name__, type(pattern)))
-    if not pattern:
-        raise ProcessErr('{}: input pattern is empty'.format(process.__name__))
-    if pattern not in valid_patterns:
-        raise ProcessErr('{}: input pattern is not '
-                         'valid'.format(process.__name__))
-    # Check every codon of input chain
-    for c in range(len(chain)):
-        if type(chain[c]) != str:
-            raise ProcessErr('{}: error in codon {}: '
-                             'codon must be string, '
-                             'not {}'.format(process.__name__,
-                                             c+1, type(chain[c])))
-        if len(chain[c]) != 3:
-            raise ProcessErr('{}: error in codon {}: '
-                             'number of nucleotides equal to {}, '
-                             'must be 3'.format(process.__name__,
-                                                c+1, len(chain[c])))
-        for n in range(len(chain[c])):
-            if chain[c][n].upper() not in pattern:
-                raise ProcessErr(
-                    '{}: error in codon {}, '
-                    'nucleotide {}: '
-                    'unexpected nucleotide - '.format(process.__name__,
-                                                      c+1, n+1, chain[c][n]))
-
-    # Process input chain
-    processed_chain = []
-    for c in chain:
-        codon = ''
-        for n in c:
-            codon += pattern[n.upper()]
-        processed_chain.append(codon)
-    return processed_chain
 
 
 def translation(mrna_chain):

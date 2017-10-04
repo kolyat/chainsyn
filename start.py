@@ -2,11 +2,8 @@
 # This file is the part of chainsyn, released under modified MIT license
 # See the file LICENSE.txt included in this distribution
 
-"""
-Main module of chainsyn
+"""Main module of chainsyn"""
 
-Uses curses library for user IO
-"""
 
 import os
 import time
@@ -18,7 +15,7 @@ import processing
 
 
 class RoutineErr(Exception):
-    """Exception class for module's routines (e. g. file IO)"""
+    """Exception class for module's routines (e. g., file I/O)"""
     pass
 
 
@@ -116,132 +113,143 @@ def generate_chain_info():
 
     return 'chainsyn-{}'.format(datetime.datetime.strftime('%Y%m%d-%H%M%S'))
 
+
+def selection_mode(screen):
+    """Switch to selection mode"""
+
+    curses.noecho()
+    curses.cbreak()
+    screen.keypad(True)
+
+
+def input_mode(screen):
+    """Switch to input mode"""
+
+    curses.echo()
+    curses.nocbreak()
+    screen.keypad(False)
+
+
+def print_results(*chains):
+    """
+    Print results of genetic processes
+
+    :param chains: set of DNA/RNA/amino acid chains, their number should be
+                   equal to 4 or 5
+
+    :raise RoutineErr:
+      - chain is not a list
+      - number of chains is not 4 or 5
+      - number of items in chains is not equal
+    """
+
+    # Necessary checks
+    if len(chains) < 4 or len(chains) > 5:
+        raise RoutineErr('{}: number of arguments must be 4 or 5, '
+                         'got {}'.format(print_results.__name__,
+                                         len(chains)))
+    for i, c in enumerate(chains, start=0):
+        if type(c) != list:
+            raise RoutineErr('{}: argument {} should be a list, '
+                             'not {}'.format(print_results.__name__,
+                                             i + 1, type(c)))
+        if not c:
+            raise RoutineErr(
+                '{}: chain {} is empty'.format(print_results.__name__, i + 1)
+            )
+        if i < len(chains) - 1:
+            if len(c) != len(chains[i + 1]):
+                raise RoutineErr(
+                    '{}: number of items in arguments {} and {} '
+                    'are not equal: {} != {}'.format(
+                        print_results.__name__, i + 1, i + 2,
+                        len(c), len(chains[i + 1]))
+                )
+
+    screen.clear()
+    # Check of terminal supports colors
+    if curses.has_colors():
+        # Set up dark gray if possible
+        if curses.can_change_color():
+            curses.init_color(curses.COLOR_WHITE, 70, 70, 70)
+        # Init color pairs
+        curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+        curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        # Print color legend
+        screen.addstr('Amino acids:\n')
+        screen.addstr('nonpolar   ', curses.color_pair(1))
+        screen.addstr('polar   ', curses.color_pair(2))
+        screen.addstr('basic   ', curses.color_pair(3))
+        screen.addstr('acidic   ', curses.color_pair(4))
+        screen.addstr('(stop codon)\n\n\n', curses.color_pair(5))
+        screen.refresh()
+        # Init color pattern for amino acids
+        color_pattern = {
+            'Phe': curses.color_pair(1),
+            'Leu': curses.color_pair(1),
+            'Ser': curses.color_pair(2),
+            'Pro': curses.color_pair(1),
+            'His': curses.color_pair(3),
+            'Gln': curses.color_pair(2),
+            'Tyr': curses.color_pair(2),
+            'xxx': curses.color_pair(5),
+            'Cys': curses.color_pair(2),
+            'Trp': curses.color_pair(1),
+            'Arg': curses.color_pair(3),
+            'Ile': curses.color_pair(1),
+            'Met': curses.color_pair(1),
+            'Thr': curses.color_pair(2),
+            'Asn': curses.color_pair(2),
+            'Lys': curses.color_pair(3),
+            'Val': curses.color_pair(1),
+            'Ala': curses.color_pair(1),
+            'Asp': curses.color_pair(4),
+            'Glu': curses.color_pair(4),
+            'Gly': curses.color_pair(1)
+        }
+
+    # Print items in chains one by one
+    for i in range(len(chains[0])):
+        for n, c in enumerate(chains, start=0):
+            if curses.has_colors() and c[i] in color_pattern:
+                screen.addstr(c[i], color_pattern[c[i]])
+            else:
+                screen.addstr(c[i])
+            if n == len(chains) - 1:
+                screen.addstr('\n')
+                screen.refresh()
+                time.sleep(0.2)
+            else:
+                screen.addstr('-')
+                screen.refresh()
+                time.sleep(0.1)
+
+    # Print conclusion
+    screen.addstr('\n')
+    screen.addstr('Processed {} codon(s)\n'.format(len(chains[0])))
+
+
 def main(screen):
     """Main function
 
     :param screen: main window
     """
 
-    def selection_mode():
-        """Switch to selection mode"""
-        curses.noecho()
-        curses.cbreak()
-        screen.keypad(True)
-
-    def input_mode():
-        """Switch to input mode"""
-        curses.echo()
-        curses.nocbreak()
-        screen.keypad(False)
-
-    def print_results(*chains):
-        """
-        Print results of genetic processes
-
-        :param chains: set of DNA/RNA/amino acid chains, their number should be
-                       equal to 4 or 5
-
-        :raise RoutineErr:
-          - chain is not a list
-          - number of chains is not 4 or 5
-          - number of items in chains is not equal
-        """
-
-        # Necessary checks
-        if len(chains) < 4 or len(chains) > 5:
-            raise RoutineErr('{}: number of arguments must be 4 or 5, '
-                             'got {}'.format(print_results.__name__,
-                                             len(chains)))
-        for i, c in enumerate(chains, start=0):
-            if type(c) != list:
-                raise RoutineErr('{}: argument {} should be a list, '
-                                 'not {}'.format(print_results.__name__,
-                                                 i + 1, type(c)))
-            if not c:
-                raise RoutineErr(
-                    '{}: chain {} is empty'.format(print_results.__name__, i+1)
-                )
-            if i < len(chains) - 1:
-                if len(c) != len(chains[i + 1]):
-                    raise RoutineErr(
-                        '{}: number of items in arguments {} and {} '
-                        'are not equal: {} != {}'.format(
-                            print_results.__name__, i + 1, i + 2,
-                            len(c), len(chains[i + 1]))
-                    )
-
-        screen.clear()
-        # Check of terminal supports colors
-        if curses.has_colors():
-            # Set up dark gray if possible
-            if curses.can_change_color():
-                curses.init_color(curses.COLOR_WHITE, 70, 70, 70)
-            # Init color pairs
-            curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-            curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-            curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
-            curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-            curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
-            # Print color legend
-            screen.addstr('Amino acids:\n')
-            screen.addstr('nonpolar   ', curses.color_pair(1))
-            screen.addstr('polar   ', curses.color_pair(2))
-            screen.addstr('basic   ', curses.color_pair(3))
-            screen.addstr('acidic   ', curses.color_pair(4))
-            screen.addstr('(stop codon)\n\n\n', curses.color_pair(5))
-            screen.refresh()
-            # Init color pattern for amino acids
-            color_pattern = {
-                'Phe': curses.color_pair(1),
-                'Leu': curses.color_pair(1),
-                'Ser': curses.color_pair(2),
-                'Pro': curses.color_pair(1),
-                'His': curses.color_pair(3),
-                'Gln': curses.color_pair(2),
-                'Tyr': curses.color_pair(2),
-                'xxx': curses.color_pair(5),
-                'Cys': curses.color_pair(2),
-                'Trp': curses.color_pair(1),
-                'Arg': curses.color_pair(3),
-                'Ile': curses.color_pair(1),
-                'Met': curses.color_pair(1),
-                'Thr': curses.color_pair(2),
-                'Asn': curses.color_pair(2),
-                'Lys': curses.color_pair(3),
-                'Val': curses.color_pair(1),
-                'Ala': curses.color_pair(1),
-                'Asp': curses.color_pair(4),
-                'Glu': curses.color_pair(4),
-                'Gly': curses.color_pair(1)
-            }
-
-        # Print items in chains one by one
-        for i in range(len(chains[0])):
-            for n, c in enumerate(chains, start=0):
-                if curses.has_colors() and c[i] in color_pattern:
-                    screen.addstr(c[i], color_pattern[c[i]])
-                else:
-                    screen.addstr(c[i])
-                if n == len(chains) - 1:
-                    screen.addstr('\n')
-                    screen.refresh()
-                    time.sleep(0.2)
-                else:
-                    screen.addstr('-')
-                    screen.refresh()
-                    time.sleep(0.1)
-
-        # Print conclusion
-        screen.addstr('\n')
-        screen.addstr('Processed {} codon(s)\n'.format(len(chains[0])))
-
     def replication():
-        """Replication menu item"""
+        """Replication menu item
+
+        :return True: if success
+        :return False: if fail
+        """
+        screen.clear()
         screen.addstr('Enter source DNA '
                       'or path to source file in FASTA format\n')
         screen.addstr('> ')
         screen.refresh()
-        input_mode()
+        input_mode(screen)
         y, x = screen.getyx()
         input_data = screen.getstr(y, x)
         screen.addstr('\n')
@@ -252,21 +260,21 @@ def main(screen):
                 source.update(from_file(input_str))
             except RoutineErr as err:
                 screen.addstr('{}\n'.format(str(err)))
+                return False
         else:
             source.update({generate_chain_info(): input_str})
         # Process source data
         chains = list()
         for s in source:
             chain = processing.Chain(s, source[s])
-            # TODO: continue here
             try:
-                dna2 = process(dna1, pattern_dna)
-                mrna = process(dna2, pattern_mrna)
-                polypeptide = translation(mrna)
-            except ProcessErr as err:
+                chain.replicate()
+            except processing.ProcessingErr as err:
                 screen.addstr('{}\n'.format(str(err)))
+            finally:
+                chains.append(chain)
         # Print results
-        selection_mode()
+        selection_mode(screen)
         try:
             print_results(dna1, dna2, mrna, polypeptide)
         except RoutineErr as err:
@@ -283,7 +291,7 @@ def main(screen):
 
     # Init main window
     screen.scrollok(True)
-    selection_mode()
+    selection_mode(screen)
     screen.clear()
 
     # Set up settings
@@ -317,7 +325,6 @@ def main(screen):
         'replication': 0,
     }
     while True:
-        item = ''
         screen.clear()
         screen.addstr('\n')
         screen.addstr('========\n')
@@ -336,12 +343,8 @@ def main(screen):
         screen.addstr('\n')
         screen.refresh()
         item = screen.getkey()
-        if item not in menu_items.values():
-            continue
         if item == menu_items['replication']:
             replication()
-
-    screen.clear()
 
     # Eucariotic cell polypeptide synthesis
     if item == menu_items[0]:
