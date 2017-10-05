@@ -30,7 +30,7 @@ class Chain(object):
 
         :return replicated DNA chain
         """
-        invalid = re.search(r'[^{}]{{1}}'.format(patterns.dna), self.raw)
+        invalid = re.search('[^{}]+?'.format(patterns.dna), self.raw)
         if invalid:
             raise ProcessingErr(
                 'Error in replication: unexpected nucleotide - {} '
