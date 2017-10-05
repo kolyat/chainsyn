@@ -6,7 +6,6 @@
 
 
 import os
-import time
 import datetime
 import curses
 import configparser
@@ -27,7 +26,7 @@ def is_file(raw_path):
     :return: True if raw_path is file
     :return: False if raw_path is not file
     """
-    if os.path.isfile(raw_path):
+    if os.path.isfile(os.path.normpath(raw_path)):
         return True
     else:
         return False
@@ -43,16 +42,16 @@ def from_file(source_file):
     """
     # Try to open file
     try:
-        with open(source_file, 'rt') as f:
-            raw = ''.join(f.read().splitlines(keepends=False))
+        with open(os.path.normpath(source_file), 'rt') as f:
+            raw = f.read()
             f.close()
     except OSError:
         raise RoutineErr('Could not open file: {}'.format(source_file))
     # Parse file
     data = dict()
-    pat = re.compile('^>(.+)$([A-Z]+)')
+    pat = re.compile('>(\S+)\s([A-Z\s]+)')
     for it in pat.finditer(raw):
-        data.update({it.group(1): it.group(2)})
+        data.update({it.group(1): re.sub('\s+', '', it.group(2))})
     return data
 
 
@@ -87,7 +86,8 @@ def to_file(exp_dir, chain):
 def generate_chain_info():
     """Generate info for manually entered chain"""
 
-    return 'chainsyn-{}'.format(datetime.datetime.strftime('%Y%m%d-%H%M%S'))
+    return 'chainsyn-{}'.format(
+        datetime.datetime.today().strftime('%Y%m%d-%H%M%S'))
 
 
 def selection_mode(screen):
@@ -166,19 +166,19 @@ def print_results(screen, chain):
     }
     # Print results
     if chain.dna1:
-        screen.addstr('{} - first DNA chain\n\n')
+        screen.addstr('{} - first DNA chain\n\n'.format(chain.info))
         for n in chain.dna1:
             screen.addstr(n, nucleo_color_pattern[n])
             screen.refresh()
-        screen.addstr('\n\n\n')
         screen.getkey()
+        screen.addstr('\n\n\n')
     if chain.dna2:
-        screen.addstr('{} - second DNA chain\n\n')
+        screen.addstr('{} - second DNA chain\n\n'.format(chain.info))
         for n in chain.dna2:
             screen.addstr(n, nucleo_color_pattern[n])
             screen.refresh()
-        screen.addstr('\n\n\n')
         screen.getkey()
+        screen.addstr('\n\n\n')
 
 
 def main(screen):
@@ -201,6 +201,7 @@ def main(screen):
         input_mode(screen)
         y, x = screen.getyx()
         input_data = screen.getstr(y, x)
+        selection_mode(screen)
         screen.addstr('\n')
         input_str = input_data.decode()
         source = dict()
@@ -209,9 +210,10 @@ def main(screen):
                 source.update(from_file(input_str))
             except RoutineErr as err:
                 screen.addstr('{}\n'.format(str(err)))
+                screen.getkey()
                 return False
         else:
-            source.update({generate_chain_info(): input_str})
+            source.update({generate_chain_info(): input_str.upper()})
         # Process source data
         chains = list()
         for s in source:
@@ -220,6 +222,7 @@ def main(screen):
                 chain.replicate()
             except processing.ProcessingErr as err:
                 screen.addstr('{}\n'.format(str(err)))
+                screen.getkey()
             finally:
                 chains.append(chain)
         # Export to text file
@@ -231,8 +234,8 @@ def main(screen):
                     to_file(settings['EXPORT']['ExportDir'], chain)
                 except RoutineErr as err:
                     screen.addstr('{}\n'.format(str(err)))
+                    screen.getkey()
         # Print results
-        selection_mode(screen)
         for chain in chains:
             print_results(screen, chain)
 
@@ -244,10 +247,10 @@ def main(screen):
     # Set up settings
     settings = configparser.ConfigParser()
     # Try to read settings file
-    s = None
+    st = None
     try:
-        s = open('settings.ini', 'rt')
-        settings.read_file(s)
+        st = open('settings.ini', 'rt')
+        settings.read_file(st)
     except OSError:
         screen.addstr('Cannot read settings.ini - using defaults\n')
         # Set defaults if read error
@@ -257,20 +260,20 @@ def main(screen):
         }
         # Try to create new settings file
         try:
-            s = open('settings.ini', 'wt')
-            settings.write(s)
+            st = open('settings.ini', 'wt')
+            settings.write(st)
         except OSError:
             screen.addstr('Cannot write settings.ini with defaults\n')
         screen.addstr('Press any key to continue')
         screen.getkey()
     finally:
-        if s:
-            s.close()
+        if st:
+            st.close()
 
     # Main cycle
     menu_items = {
-        'replication': 1,
-        'exit': 0
+        'replication': '1',
+        'exit': '0'
     }
     while True:
         screen.clear()
@@ -293,9 +296,6 @@ def main(screen):
             replication()
         if item == menu_items['exit']:
             break
-    screen.addstr('Press any key to exit')
-    screen.refresh()
-    screen.getkey()
     input_mode(screen)
     curses.endwin()
 
