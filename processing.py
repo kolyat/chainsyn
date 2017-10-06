@@ -2,8 +2,7 @@
 # This file is the part of chainsyn, released under modified MIT license
 # See the file LICENSE.txt included in this distribution
 
-# TODO: module description
-""""""
+"""Module contains utilities for chain processing"""
 
 import re
 import patterns
@@ -17,7 +16,7 @@ class ProcessingErr(Exception):
 class Chain(object):
     """Main class for chain processing"""
 
-    info, raw, dna1, dna2 = '', '', '', ''
+    info, raw, dna1, dna2, rna, peptide = '', '', '', '', '', ''
 
     def __init__(self, info, raw):
         self.info = info
@@ -33,7 +32,7 @@ class Chain(object):
         invalid = re.search('[^{}]+?'.format(patterns.dna), self.raw)
         if invalid:
             raise ProcessingErr(
-                'Error in replication: unexpected nucleotide - {} '
+                'Error in replication: unexpected DNA nucleotide - {} '
                 'at position {}'.format(invalid.group(0), invalid.start())
             )
         self.dna1 = self.raw
@@ -42,3 +41,72 @@ class Chain(object):
             dna.append(patterns.dna_to_dna[n])
         self.dna2 = ''.join(dna)
         return self.dna2
+
+    def transcribe(self):
+        """DNA -> RNA
+
+        :raise ProcessingErr: if raw string contains nonDNA nucleotide
+
+        :return transcribed RNA chain
+        """
+        invalid = re.search('[^{}]+?'.format(patterns.dna), self.raw)
+        if invalid:
+            raise ProcessingErr(
+                'Error in transcription: unexpected DNA nucleotide - {} '
+                'at position {}'.format(invalid.group(0), invalid.start())
+            )
+        self.dna1 = self.raw
+        rna = list()
+        for n in self.dna1:
+            rna.append(patterns.dna_to_rna[n])
+        self.rna = ''.join(rna)
+        return self.rna
+
+    def translate(self):
+        """RNA -> peptide
+
+        :raise ProcessingErr:
+            - RNA's length is not divisible by 3
+            - raw string contains nonRNA nucleotide
+            - first codon is not AUG (methionine)
+            - stop-codon is absent
+
+        :return translated peptide chain
+        """
+        if len(self.raw) % 3:
+            raise ProcessingErr(
+                'Error in translation: RNA\'s length should be divisible by 3,'
+                ' current length - {}'.format(len(self.raw))
+            )
+        invalid = re.search('[^{}]+?'.format(patterns.rna), self.raw)
+        if invalid:
+            raise ProcessingErr(
+                'Error in translation: unexpected RNA nucleotide - {} '
+                'at position {}'.format(invalid.group(0), invalid.start())
+            )
+        check = re.match('{}'.format(patterns.abc_to_rna['M'][0]), self.raw)
+        if not check.group(0):
+            raise ProcessingErr(
+                'Error in translation: RNA should start with {}'
+                ''.format(patterns.abc_to_rna['M'][0])
+            )
+        check = re.search(
+            '{}(?:...)*?({}|{}|{})'
+            ''.format(
+                patterns.abc_to_rna['M'][0], patterns.abc_to_rna['.'][0],
+                patterns.abc_to_rna['.'][1], patterns.abc_to_rna['.'][2]),
+            self.raw
+        )
+        if not check.group(1):
+            raise ProcessingErr(
+                'Error in translation: RNA should have stop-codon'
+            )
+        self.rna = self.raw
+        peptide = list()
+        for i in range(0, len(self.rna), 3):
+            codon = self.rna[i:i+3]
+            peptide.append(patterns.rna_to_abc[codon])
+            if codon in patterns.abc_to_rna['.']:
+                break
+        self.peptide = ''.join(peptide)
+        return self.peptide

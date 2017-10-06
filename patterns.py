@@ -13,7 +13,7 @@ dna_to_dna = {
     'C': 'G',
     'G': 'C'
 }
-dna_to_mrna = {
+dna_to_rna = {
     'A': 'U',
     'T': 'A',
     'C': 'G',

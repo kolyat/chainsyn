@@ -79,6 +79,14 @@ def to_file(exp_dir, chain):
         out.write('>{}-DNA2\n'.format(chain.info))
         out.write('{}\n'.format(chain.dna2))
         out.write('\n')
+    if chain.rna:
+        out.write('>{}-RNA\n'.format(chain.info))
+        out.write('{}\n'.format(chain.rna))
+        out.write('\n')
+    if chain.peptide:
+        out.write('>{}-peptide\n'.format(chain.info))
+        out.write('{}\n'.format(chain.peptide))
+        out.write('\n')
     out.close()
     return True
 
@@ -117,7 +125,7 @@ def print_results(screen, chain):
     :param screen: main window
     """
     screen.clear()
-    # Check of terminal supports colors
+    # Check if terminal supports colors
     if curses.has_colors():
         # Set up dark gray if possible
         if curses.can_change_color():
@@ -179,6 +187,20 @@ def print_results(screen, chain):
             screen.refresh()
         screen.getkey()
         screen.addstr('\n\n\n')
+    if chain.rna:
+        screen.addstr('{} - RNA chain\n\n'.format(chain.info))
+        for n in chain.rna:
+            screen.addstr(n, nucleo_color_pattern[n])
+            screen.refresh()
+        screen.getkey()
+        screen.addstr('\n\n\n')
+    if chain.peptide:
+        screen.addstr('{} - peptide chain\n\n'.format(chain.info))
+        for n in chain.peptide:
+            screen.addstr(n, abc_color_pattern[n])
+            screen.refresh()
+        screen.getkey()
+        screen.addstr('\n\n\n')
 
 
 def main(screen):
@@ -187,15 +209,28 @@ def main(screen):
     :param screen: main window
     """
 
-    def replication():
-        """Replication menu item
+    def driver(process):
+        """Common function which consists of user input, processing, writing to
+        file and results printing
+
+        :param process: type of process: replication, transcription,
+                        translation
 
         :return True: on success
         :return False: if fails
         """
+        if process not in menu_items.keys():
+            raise RoutineErr('Driver call error: unknown process - {}'
+                             ''.format(process))
+        # User input
+        base = str()
+        if process in ('replication', 'transcription'):
+            base = 'DNA'
+        if process == 'translation':
+            base = 'RNA'
         screen.clear()
-        screen.addstr('Enter source DNA '
-                      'or path to source file in FASTA format\n')
+        screen.addstr('Enter source {} '
+                      'or path to source file in FASTA format\n'.format(base))
         screen.addstr('> ')
         screen.refresh()
         input_mode(screen)
@@ -203,7 +238,7 @@ def main(screen):
         input_data = screen.getstr(y, x)
         selection_mode(screen)
         screen.addstr('\n')
-        input_str = input_data.decode()
+        input_str = re.sub('\s+', '', input_data.decode())
         source = dict()
         if is_file(input_str):
             try:
@@ -219,7 +254,12 @@ def main(screen):
         for s in source:
             chain = processing.Chain(s, source[s])
             try:
-                chain.replicate()
+                if process == 'replication':
+                    chain.replicate()
+                if process == 'transcription':
+                    chain.transcribe()
+                if process == 'translation':
+                    chain.translate()
             except processing.ProcessingErr as err:
                 screen.addstr('{}\n'.format(str(err)))
                 screen.getkey()
@@ -273,6 +313,8 @@ def main(screen):
     # Main cycle
     menu_items = {
         'replication': '1',
+        'transcription': '2',
+        'translation': '3',
         'exit': '0'
     }
     while True:
@@ -286,14 +328,20 @@ def main(screen):
         screen.addstr('\n')
         screen.addstr('{} - Replication (DNA -> DNA)\n'
                       ''.format(menu_items['replication']))
-        # screen.addstr('{} - Eucariotic cell polypeptide synthesis\n'.format(menu_items[0]))
-        # screen.addstr('{} - Imitate full viral cycle\n'.format(menu_items[1]))
+        screen.addstr('{} - Transcription (DNA -> RNA)\n'
+                      ''.format(menu_items['transcription']))
+        screen.addstr('{} - Translation (RNA -> peptide)\n'
+                      ''.format(menu_items['translation']))
         screen.addstr('{} - Exit\n'.format(menu_items['exit']))
         screen.addstr('\n')
         screen.refresh()
         item = screen.getkey()
         if item == menu_items['replication']:
-            replication()
+            driver('replication')
+        if item == menu_items['transcription']:
+            driver('transcription')
+        if item == menu_items['translation']:
+            driver('translation')
         if item == menu_items['exit']:
             break
     input_mode(screen)
