@@ -8,3 +8,9 @@ bioinformatics. It supports:
 
 Input/output of required data can be done via terminal or text file in FASTA
 format.
+
+Program can collect some statistics about available data:
+- Number of nucleotides
+- Number of codons
+- GC-content %
+- Peptide's mass

@@ -1,3 +1,10 @@
+2017-10-07 - v0.3.0
+Project has been re-engineered
+-- Add FASTA format support
+-- Introduce amino acid 'alphabet' instead of their names
+-- Change output (both to screen and file)
+-- Add some statistics
+
 2017-02-12
 v0.2 - next release with major improvements
 

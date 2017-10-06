@@ -16,7 +16,7 @@ class ProcessingErr(Exception):
 class Chain(object):
     """Main class for chain processing"""
 
-    info, raw, dna1, dna2, rna, peptide = '', '', '', '', '', ''
+    info, raw, dna1, dna2, rna, peptide, stats = '', '', '', '', '', '', {}
 
     def __init__(self, info, raw):
         self.info = info
@@ -110,3 +110,23 @@ class Chain(object):
                 break
         self.peptide = ''.join(peptide)
         return self.peptide
+
+    def collect_stats(self):
+        """Collects statistics about available data
+
+        :return: dict with stats
+        """
+        self.stats = dict()
+        if self.dna1:
+            self.stats.update({'nucleotides': len(self.dna1)})
+            self.stats.update({'codons': len(self.dna1) // 3})
+            gc = self.dna1.count('G') + self.dna1.count('C')
+            gc_percentage = round(gc * 100 / len(self.dna1), 6)
+            self.stats.update({'gc-content': gc_percentage})
+        if self.peptide:
+            mass = 0.0
+            for i in self.peptide:
+                mass += patterns.abc_mass[i]
+            result = round(mass, ndigits=3)
+            self.stats.update({'mass': result})
+        return self.stats

@@ -201,6 +201,17 @@ def print_results(screen, chain):
             screen.refresh()
         screen.getkey()
         screen.addstr('\n\n\n')
+    # Print stats
+    if chain.stats.get('nucleotides'):
+        screen.addstr('Number of nucleotides: {}\n'
+                      ''.format(chain.stats['nucleotides']))
+    if chain.stats.get('codons'):
+        screen.addstr('Number of codons: {}\n'.format(chain.stats['codons']))
+    if type(chain.stats.get('gc-content')) == float:
+        screen.addstr('GC-content: {:f}\n'.format(chain.stats['gc-content']))
+    if chain.stats.get('mass'):
+        screen.addstr('Peptide\'s mass: {}\n'.format(chain.stats['mass']))
+    screen.getkey()
 
 
 def main(screen):
@@ -264,6 +275,7 @@ def main(screen):
                 screen.addstr('{}\n'.format(str(err)))
                 screen.getkey()
             finally:
+                chain.collect_stats()
                 chains.append(chain)
         # Export to text file
         if settings.has_section('EXPORT') \
