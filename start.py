@@ -125,53 +125,6 @@ def print_results(screen, chain):
     :param screen: main window
     """
     screen.clear()
-    # Check if terminal supports colors
-    if curses.has_colors():
-        # Set up dark gray if possible
-        if curses.can_change_color():
-            curses.init_color(curses.COLOR_WHITE, 70, 70, 70)
-        # Init color pairs
-        curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
-        curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-        curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        curses.init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)
-    else:
-        for i in (1, 2, 3, 4, 5, 6):
-            curses.init_pair(i, curses.COLOR_WHITE, curses.COLOR_BLACK)
-    # Init color for nucleotides
-    nucleo_color_pattern = {
-        'A': curses.color_pair(6),
-        'T': curses.color_pair(4),
-        'U': curses.color_pair(1),
-        'C': curses.color_pair(2),
-        'G': curses.color_pair(3)
-    }
-    # Init color pattern for amino acids
-    abc_color_pattern = {
-        'F': curses.color_pair(1),
-        'L': curses.color_pair(1),
-        'S': curses.color_pair(2),
-        'P': curses.color_pair(1),
-        'H': curses.color_pair(3),
-        'Q': curses.color_pair(2),
-        'Y': curses.color_pair(2),
-        '.': curses.color_pair(5),
-        'C': curses.color_pair(2),
-        'W': curses.color_pair(1),
-        'R': curses.color_pair(3),
-        'I': curses.color_pair(1),
-        'M': curses.color_pair(1),
-        'T': curses.color_pair(2),
-        'N': curses.color_pair(2),
-        'K': curses.color_pair(3),
-        'V': curses.color_pair(1),
-        'A': curses.color_pair(1),
-        'D': curses.color_pair(4),
-        'E': curses.color_pair(4),
-        'G': curses.color_pair(1)
-    }
     # Print results
     if chain.dna1:
         screen.addstr('{} - first DNA chain\n\n'.format(chain.info))
@@ -291,6 +244,53 @@ def main(screen):
         for chain in chains:
             print_results(screen, chain)
 
+    # Init colors if supported
+    if curses.has_colors():
+        # Set up dark gray if possible
+        if curses.can_change_color():
+            curses.init_color(curses.COLOR_WHITE, 70, 70, 70)
+        # Init color pairs
+        curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+        curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)
+    else:
+        for i in (1, 2, 3, 4, 5, 6):
+            curses.init_pair(i, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    # Init color for nucleotides
+    nucleo_color_pattern.update({
+        'A': curses.color_pair(6),
+        'T': curses.color_pair(4),
+        'U': curses.color_pair(1),
+        'C': curses.color_pair(2),
+        'G': curses.color_pair(3)
+    })
+    # Init color pattern for amino acids
+    abc_color_pattern.update({
+        'F': curses.color_pair(1),
+        'L': curses.color_pair(1),
+        'S': curses.color_pair(2),
+        'P': curses.color_pair(1),
+        'H': curses.color_pair(3),
+        'Q': curses.color_pair(2),
+        'Y': curses.color_pair(2),
+        '.': curses.color_pair(5),
+        'C': curses.color_pair(2),
+        'W': curses.color_pair(1),
+        'R': curses.color_pair(3),
+        'I': curses.color_pair(1),
+        'M': curses.color_pair(1),
+        'T': curses.color_pair(2),
+        'N': curses.color_pair(2),
+        'K': curses.color_pair(3),
+        'V': curses.color_pair(1),
+        'A': curses.color_pair(1),
+        'D': curses.color_pair(4),
+        'E': curses.color_pair(4),
+        'G': curses.color_pair(1)
+    })
     # Init main window
     screen.scrollok(True)
     selection_mode(screen)
@@ -361,4 +361,5 @@ def main(screen):
 
 
 if __name__ == '__main__':
+    nucleo_color_pattern, abc_color_pattern = dict(), dict()
     curses.wrapper(main)
