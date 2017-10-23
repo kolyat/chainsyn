@@ -61,9 +61,9 @@ rna_to_abc = {
     'UAU': 'Y',
     'UAC': 'Y',
     # Stop codons
-    'UAA': '.',
-    'UAG': '.',
-    'UGA': '.',
+    'UAA': '*',
+    'UAG': '*',
+    'UGA': '*',
     # Cysteine
     'UGU': 'C',
     'UGC': 'C',
@@ -162,5 +162,5 @@ abc_to_rna = {
     'W': ('UGG',),
     'Y': ('UAU', 'UAC'),
     'V': ('GUU', 'GUC', 'GUA', 'GUG'),
-    '.': ('UAA', 'UGA', 'UAG')
+    '*': ('UAA', 'UGA', 'UAG')
 }

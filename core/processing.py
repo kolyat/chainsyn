@@ -93,8 +93,8 @@ class Chain(object):
         check = re.search(
             '{}(?:...)*?({}|{}|{})'
             ''.format(
-                patterns.abc_to_rna['M'][0], patterns.abc_to_rna['.'][0],
-                patterns.abc_to_rna['.'][1], patterns.abc_to_rna['.'][2]),
+                patterns.abc_to_rna['M'][0], patterns.abc_to_rna['*'][0],
+                patterns.abc_to_rna['*'][1], patterns.abc_to_rna['*'][2]),
             self.raw
         )
         if not check.group(1):
@@ -106,7 +106,7 @@ class Chain(object):
         for i in range(0, len(self.rna), 3):
             codon = self.rna[i:i+3]
             protein.append(patterns.rna_to_abc[codon])
-            if codon in patterns.abc_to_rna['.']:
+            if codon in patterns.abc_to_rna['*']:
                 break
         self.protein = ''.join(protein)
         return self.protein

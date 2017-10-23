@@ -276,7 +276,7 @@ def main(screen):
         'H': curses.color_pair(3),
         'Q': curses.color_pair(2),
         'Y': curses.color_pair(2),
-        '.': curses.color_pair(5),
+        '*': curses.color_pair(5),
         'C': curses.color_pair(2),
         'W': curses.color_pair(1),
         'R': curses.color_pair(3),
