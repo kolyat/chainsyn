@@ -1,0 +1,89 @@
+﻿body, #run {
+	background-color: #333333;
+	font-family: sans-serif;
+}
+
+.header, .modes, #input_area_area, #run {
+	border: 2px solid #CCCCCC;
+}
+
+h1, .mode, #input_area, #run {
+  color: #FFFFFF;
+}
+
+.header {
+	text-align: center;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 9px;
+	margin-left: 0px;
+	padding: 1em;
+}
+
+h1 {
+	margin: 0px;
+	font-size: 1.5em;
+	font-weight: bold;
+	letter-spacing: 0.25em;
+}
+
+.modes {
+	margin-top: 0px;
+	margin-right: 9px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	padding-top: 1em;
+	padding-right: 1em;
+	padding-bottom: 1em;
+	padding-left: 0.75em;
+	float: left;
+}
+
+.mode-selector {
+  width: 26px;
+}
+
+.mode {
+	font-size: 1em;
+	font-weight: 500;
+	text-align: left;
+	padding: 0px;
+    margin-top: 12px;
+	margin-right: 0px;
+	margin-bottom: 12px;
+	margin-left: 0px;
+}
+
+.editor {
+ 	margin-top: 0px;
+ 	margin-right: 9px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	padding: 0px;
+	float: left;
+}
+
+.editor-footer {
+ 	margin-top: 3px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+    padding: 0px;
+}
+
+#input_area {
+	background-color: #666666;
+	font-size: 1em;
+	width: 30em;
+	height: 20em;
+	resize: none;
+}
+
+#run {
+	float: right;
+	width: 90px;
+	height: 36px;
+	font-size: 1em;
+	font-weight: bold;
+	margin: 0px;
+}

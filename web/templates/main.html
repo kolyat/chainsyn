@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta content="text/html; charset=utf-8" />
+  <link href="static/main.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/png" href="static/favicon.png" />
+  <title>chainsyn</title>
+</head>
+
+<body>
+  <div class="header">
+    <h1>chainsyn</h1>
+  </div>
+  <form name="editor" action="" method="post">
+    <div class="modes">
+      {% for mode in editor_form.mode %}
+        <p class="mode">{{ mode }}{{ mode.label }}</p>
+      {% endfor %}
+    </div>
+    <div class="editor">
+      {{ editor_form.input_area }}
+      <div class="editor-footer">
+        {{ editor_form.run }}
+      </div>
+    </div>
+  </form>
+</body>
+
+</html>
