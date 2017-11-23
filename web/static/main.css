@@ -3,12 +3,12 @@
 	font-family: sans-serif;
 }
 
-.header, .modes, #input_area_area, #run {
+.header, .modes, #input_area_area, #result_area, #run {
 	border: 2px solid #CCCCCC;
 }
 
-h1, .mode, #input_area, #run {
-  color: #FFFFFF;
+h1, .mode, #input_area, #result_area, #run {
+    color: #FFFFFF;
 }
 
 .header {
@@ -71,8 +71,8 @@ h1 {
     padding: 0px;
 }
 
-#input_area {
-	background-color: #666666;
+#input_area, #result_area {
+	background-color: #4d4d4d;
 	font-size: 1em;
 	width: 30em;
 	height: 20em;
@@ -86,4 +86,10 @@ h1 {
 	font-size: 1em;
 	font-weight: bold;
 	margin: 0px;
+}
+
+.result {
+ 	margin: 0px;
+	padding: 0px;
+	float: right;
 }
