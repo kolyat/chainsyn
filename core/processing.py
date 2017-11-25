@@ -85,7 +85,7 @@ class Chain(object):
                 'at position {}'.format(invalid.group(0), invalid.start())
             )
         check = re.match('{}'.format(patterns.abc_to_rna['M'][0]), self.raw)
-        if not check.group(0):
+        if not check:
             raise ProcessingErr(
                 'Error in translation: RNA should start with {}'
                 ''.format(patterns.abc_to_rna['M'][0])
@@ -97,9 +97,10 @@ class Chain(object):
                 patterns.abc_to_rna['*'][1], patterns.abc_to_rna['*'][2]),
             self.raw
         )
-        if not check.group(1):
+        if not check:
             raise ProcessingErr(
-                'Error in translation: RNA should have stop-codon'
+                'Error in translation: RNA should have stop-codon: ' +
+                ' / '.join(patterns.abc_to_rna['*'])
             )
         self.rna = self.raw
         protein = list()
