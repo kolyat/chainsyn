@@ -3,6 +3,7 @@
 # See the file LICENSE.txt included in this distribution
 
 import flask_wtf
+from flask_wtf import file
 import wtforms
 
 
@@ -13,5 +14,6 @@ class EditorForm(flask_wtf.FlaskForm):
                  ('transcription', 'Transcription'),
                  ('translation', 'Translation')]
     )
+    file_upload = file.FileField('Upload file')
     input_area = wtforms.TextAreaField()
     run = wtforms.SubmitField('Run')

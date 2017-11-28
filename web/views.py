@@ -2,10 +2,13 @@
 # This file is the part of chainsyn, released under modified MIT license
 # See the file LICENSE.txt included in this distribution
 
+import os
 import re
 import flask
+from werkzeug import utils
+from . import config
 from web import web_interface, forms
-from core import processing
+from core import processing, tools
 
 
 @web_interface.route('/', methods=['GET', 'POST'])
@@ -16,8 +19,23 @@ def main():
         output = ''
     else:
         if editor_form.validate_on_submit():
-            editor_form.input_area.data = \
-                re.sub('\s+', '', editor_form.input_area.data)
+            if editor_form.file_upload.data:
+                editor_form.input_area.data = ''
+                f = editor_form.file_upload.data
+                file_name = os.path.join(config.FILE_UPLOAD_DIR,
+                                         utils.secure_filename(f.filename))
+                f.save(file_name)
+                try:
+                    data = tools.from_file(file_name)
+                    editor_form.input_area.data = list(data.values())[0]
+                except tools.RoutineErr as e:
+                    output = str(e)
+                    return flask.render_template('main.html',
+                                                 editor_form=editor_form,
+                                                 output=output)
+            else:
+                editor_form.input_area.data = \
+                    re.sub('\s+', '', editor_form.input_area.data)
             chain = processing.Chain('', editor_form.input_area.data)
             try:
                 if editor_form.mode.data == 'replication':

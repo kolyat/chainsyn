@@ -1,4 +1,4 @@
-﻿body, #run {
+﻿body, #run, #file_upload {
 	background-color: #333333;
 	font-family: sans-serif;
 }
@@ -7,7 +7,7 @@
 	border: 2px solid #CCCCCC;
 }
 
-h1, .mode, #input_area, #result_area, #run {
+h1, .mode, #input_area, #result_area, #run, #file_upload {
     color: #FFFFFF;
 }
 
@@ -79,10 +79,15 @@ h1 {
 	resize: none;
 }
 
+#file_upload {
+	float: left;
+	margin: 0px;
+}
+
 #run {
 	float: right;
 	width: 90px;
-	height: 36px;
+	height: 30px;
 	font-size: 1em;
 	font-weight: bold;
 	margin: 0px;

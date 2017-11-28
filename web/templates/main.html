@@ -12,7 +12,7 @@
   <div class="header">
     <h1>chainsyn</h1>
   </div>
-  <form name="editor" action="" method="post">
+  <form name="editor" action="" method="post" enctype="multipart/form-data">
     <div class="modes">
       {% for mode in editor_form.mode %}
         <p class="mode">{{ mode }}{{ mode.label }}</p>
@@ -21,6 +21,7 @@
     <div class="editor">
       {{ editor_form.input_area }}
       <div class="editor-footer">
+        {{ editor_form.file_upload }}
         {{ editor_form.run }}
       </div>
     </div>
