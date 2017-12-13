@@ -3,11 +3,11 @@
 	font-family: sans-serif;
 }
 
-.header, .modes, #input_area_area, #result_area, #run {
+.header, .pane, #input_area_area, #result_area, #run {
 	border: 2px solid #CCCCCC;
 }
 
-h1, .mode, #input_area, #result_area, #run, #file_upload {
+h1, .mode, .stat, #input_area, #result_area, #run, #file_upload {
     color: #FFFFFF;
 }
 
@@ -27,7 +27,7 @@ h1 {
 	letter-spacing: 0.25em;
 }
 
-.modes {
+.pane {
 	margin-top: 0px;
 	margin-right: 9px;
 	margin-bottom: 0px;
@@ -35,12 +35,13 @@ h1 {
 	padding-top: 1em;
 	padding-right: 1em;
 	padding-bottom: 1em;
-	padding-left: 0.75em;
+	padding-left: 1em;
 	float: left;
 }
 
-.mode-selector {
-  width: 26px;
+#modes {
+	margin: 0px;
+    padding: 0px;
 }
 
 .mode {
@@ -54,6 +55,29 @@ h1 {
 	margin-left: 0px;
 }
 
+.mode-selector {
+    width: 26px;
+}
+
+#stats {
+	margin-top: 2em;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	padding: 0px;
+}
+
+.stat {
+	font-size: 0.75em;
+	font-weight: 100;
+	text-align: left;
+	padding: 0px;
+    margin-top: 6px;
+	margin-right: 0px;
+	margin-bottom: 6px;
+	margin-left: 0px;
+}
+
 .editor {
  	margin-top: 0px;
  	margin-right: 9px;
@@ -63,7 +87,7 @@ h1 {
 	float: left;
 }
 
-.editor-footer {
+#editor-footer {
  	margin-top: 3px;
 	margin-bottom: 0px;
 	margin-left: 0px;
@@ -93,7 +117,7 @@ h1 {
 	margin: 0px;
 }
 
-.result {
+#result {
  	margin: 0px;
 	padding: 0px;
 	float: left;

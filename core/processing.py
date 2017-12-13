@@ -123,7 +123,15 @@ class Chain(object):
             self.stats.update({'codons': len(self.dna1) // 3})
             gc = self.dna1.count('G') + self.dna1.count('C')
             gc_percentage = round(gc * 100 / len(self.dna1), 6)
-            self.stats.update({'gc-content': gc_percentage})
+            self.stats.update({'gc_content': gc_percentage})
+        elif self.rna:
+            self.stats.update({'nucleotides': len(self.rna)})
+            self.stats.update({'codons': len(self.rna) // 3})
+            gc = self.rna.count('G') + self.rna.count('C')
+            gc_percentage = round(gc * 100 / len(self.rna), 6)
+            self.stats.update({'gc_content': gc_percentage})
+        else:
+            pass
         if self.protein:
             mass = 0.0
             for i in self.protein:

@@ -13,20 +13,38 @@
     <h1>chainsyn</h1>
   </div>
   <form name="editor" action="" method="post" enctype="multipart/form-data">
-    <div class="modes">
+    <div class="pane">
+      <div id="modes">
       {% for mode in editor_form.mode %}
         <p class="mode">{{ mode }}{{ mode.label }}</p>
       {% endfor %}
+      </div>
+      {% if stats %}
+      <div id="stats">
+        {% if stats.nucleotides >= 0 %}
+        <p class="stat">Number of nucleotides:<br>{{ stats.nucleotides }}</p>
+        {% endif %}
+        {% if stats.codons >= 0 %}
+        <p class="stat">Number of codons:<br>{{ stats.codons }}</p>
+        {% endif %}
+        {% if stats.gc_content >= 0 %}
+        <p class="stat">GC-content:<br>{{ stats.gc_content }}%</p>
+        {% endif %}
+        {% if stats.mass %}
+        <p class="stat">Protein's mass:<br>{{ stats.mass }}</p>
+        {% endif %}
+      </div>
+      {% endif %}
     </div>
     <div class="editor">
       {{ editor_form.input_area }}
-      <div class="editor-footer">
+      <div id="editor-footer">
         {{ editor_form.file_upload }}
         {{ editor_form.run }}
       </div>
     </div>
   </form>
-  <div class="result">
+  <div id="result">
     <textarea id="result_area">{{ output }}</textarea>
   </div>
 </body>

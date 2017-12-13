@@ -97,7 +97,7 @@ def print_results(screen, chain):
     if chain.stats.get('codons'):
         screen.addstr('Number of codons: {}\n'.format(chain.stats['codons']))
     if type(chain.stats.get('gc-content')) == float:
-        screen.addstr('GC-content: {:f} %\n'.format(chain.stats['gc-content']))
+        screen.addstr('GC-content: {:f} %\n'.format(chain.stats['gc_content']))
     if chain.stats.get('mass'):
         screen.addstr('Protein\'s mass: {}\n'.format(chain.stats['mass']))
     screen.getkey()

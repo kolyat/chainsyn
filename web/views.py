@@ -16,6 +16,7 @@ def main():
     editor_form = forms.EditorForm()
     if flask.request.method == 'GET':
         editor_form.mode.data = 'replication'
+        stats = None
         output = ''
     else:
         if editor_form.validate_on_submit():
@@ -32,7 +33,7 @@ def main():
                     output = str(e)
                     return flask.render_template('main.html',
                                                  editor_form=editor_form,
-                                                 output=output)
+                                                 output=output, stats=None)
             else:
                 editor_form.input_area.data = \
                     re.sub('\s+', '', editor_form.input_area.data)
@@ -46,9 +47,15 @@ def main():
                     output = chain.translate()
                 else:
                     output = ''
+                if output:
+                    stats = chain.collect_stats()
+                else:
+                    stats = None
             except processing.ProcessingErr as e:
                 output = str(e)
+                stats = None
         else:
             output = ''
+            stats = None
     return flask.render_template('main.html', editor_form=editor_form,
-                                 output=output)
+                                 output=output, stats=stats)
