@@ -3,7 +3,7 @@
 	font-family: sans-serif;
 }
 
-.header, .pane, #input_area_area, #result_area, #run {
+.header, .pane, #input_area, #result_area, #run {
 	border: 2px solid #CCCCCC;
 }
 
