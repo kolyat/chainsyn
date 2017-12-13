@@ -1,3 +1,6 @@
+# Terminal interface settings
+EXPORT_ENABLED = False
+EXPORT_DIR = ''
 # Web interface settings
 CSRF_ENABLED = False
 SECRET_KEY = ''

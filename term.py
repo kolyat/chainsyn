@@ -8,8 +8,8 @@
 import os
 import datetime
 import curses
-import configparser
 import re
+import config
 from core import processing, tools
 
 
@@ -167,12 +167,10 @@ def main(screen):
                 chain.collect_stats()
                 chains.append(chain)
         # Export to text file
-        if settings.has_section('EXPORT') \
-                and settings.has_option('EXPORT', 'Export') \
-                and settings.getboolean('EXPORT', 'Export'):
+        if config.EXPORT_ENABLED:
             for chain in chains:
                 try:
-                    tools.to_file(settings['EXPORT']['ExportDir'], chain)
+                    tools.to_file(config.EXPORT_DIR, chain)
                 except tools.RoutineErr as err:
                     screen.addstr('{}\n'.format(str(err)))
                     screen.getkey()
@@ -231,32 +229,6 @@ def main(screen):
     screen.scrollok(True)
     selection_mode(screen)
     screen.clear()
-
-    # Set up settings
-    settings = configparser.ConfigParser()
-    # Try to read settings file
-    st = None
-    try:
-        st = open('settings.ini', 'rt')
-        settings.read_file(st)
-    except OSError:
-        screen.addstr('Cannot read settings.ini - using defaults\n')
-        # Set defaults if read error
-        settings['EXPORT'] = {
-            'Export': 'no',
-            'ExportDir': ''
-        }
-        # Try to create new settings file
-        try:
-            st = open('settings.ini', 'wt')
-            settings.write(st)
-        except OSError:
-            screen.addstr('Cannot write settings.ini with defaults\n')
-        screen.addstr('Press any key to continue')
-        screen.getkey()
-    finally:
-        if st:
-            st.close()
 
     # Main cycle
     menu_items = {
