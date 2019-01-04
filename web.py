@@ -1,3 +1,7 @@
+# Copyright (c) 2016-2019 Kirill 'Kolyat' Kiselnikov
+# This file is the part of chainsyn, released under modified MIT license
+# See the file LICENSE.txt included in this distribution
+
 import os
 import web
 from web import config
