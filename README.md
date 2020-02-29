@@ -1,6 +1,6 @@
 # chainsyn
 
-**chainsyn** (from '*chain synthesis*') is a simple simulator for genome
+**chainsyn** (from '*chain synthesis*') is a toy simulator for genome
 bioinformatics. It supports:
 - Replication (DNA to DNA)
 - Transcription (DNA to RNA)
